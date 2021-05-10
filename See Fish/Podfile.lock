@@ -1,0 +1,292 @@
+PODS:
+  - Alamofire (4.9.1)
+  - ALCameraViewController (3.1)
+  - ASPVideoPlayer (6.1.1)
+  - Auk (11.0.0):
+    - moa
+  - AvailableHapticFeedback (1.0.2)
+  - Cosmos (22.1.0)
+  - CountryPickerView (3.1.2)
+  - DropDown (2.3.13)
+  - DynamicBlurView (5.0.3)
+  - Firebase/Analytics (6.28.1):
+    - Firebase/Core
+  - Firebase/Core (6.28.1):
+    - Firebase/CoreOnly
+    - FirebaseAnalytics (= 6.6.2)
+  - Firebase/CoreOnly (6.28.1):
+    - FirebaseCore (= 6.9.1)
+  - Firebase/Database (6.28.1):
+    - Firebase/CoreOnly
+    - FirebaseDatabase (~> 6.4.0)
+  - Firebase/Storage (6.28.1):
+    - Firebase/CoreOnly
+    - FirebaseStorage (~> 3.8.0)
+  - FirebaseAnalytics (6.6.2):
+    - FirebaseCore (~> 6.8)
+    - FirebaseInstallations (~> 1.4)
+    - GoogleAppMeasurement (= 6.6.2)
+    - GoogleUtilities/AppDelegateSwizzler (~> 6.0)
+    - GoogleUtilities/MethodSwizzler (~> 6.0)
+    - GoogleUtilities/Network (~> 6.0)
+    - "GoogleUtilities/NSData+zlib (~> 6.0)"
+    - nanopb (~> 1.30905.0)
+  - FirebaseCore (6.9.1):
+    - FirebaseCoreDiagnostics (~> 1.3)
+    - GoogleUtilities/Environment (~> 6.7)
+    - GoogleUtilities/Logger (~> 6.7)
+  - FirebaseCoreDiagnostics (1.5.0):
+    - GoogleDataTransport (~> 7.0)
+    - GoogleUtilities/Environment (~> 6.7)
+    - GoogleUtilities/Logger (~> 6.7)
+    - nanopb (~> 1.30905.0)
+  - FirebaseDatabase (6.4.0):
+    - FirebaseCore (~> 6.8)
+    - leveldb-library (~> 1.22)
+  - FirebaseInstallations (1.5.0):
+    - FirebaseCore (~> 6.8)
+    - GoogleUtilities/Environment (~> 6.7)
+    - GoogleUtilities/UserDefaults (~> 6.7)
+    - PromisesObjC (~> 1.2)
+  - FirebaseInstanceID (4.5.0):
+    - FirebaseCore (~> 6.8)
+    - FirebaseInstallations (~> 1.0)
+    - GoogleUtilities/Environment (~> 6.7)
+    - GoogleUtilities/UserDefaults (~> 6.7)
+  - FirebaseMessaging (4.6.0):
+    - FirebaseCore (~> 6.8)
+    - FirebaseInstanceID (~> 4.3)
+    - GoogleUtilities/AppDelegateSwizzler (~> 6.7)
+    - GoogleUtilities/Environment (~> 6.7)
+    - GoogleUtilities/Reachability (~> 6.7)
+    - GoogleUtilities/UserDefaults (~> 6.7)
+    - Protobuf (>= 3.9.2, ~> 3.9)
+  - FirebaseStorage (3.8.0):
+    - FirebaseCore (~> 6.8)
+    - GTMSessionFetcher/Core (~> 1.1)
+  - FlexibleAVCapture (2.2.5)
+  - FluidTabBarController (0.5.3)
+  - GoogleAppMeasurement (6.6.2):
+    - GoogleUtilities/AppDelegateSwizzler (~> 6.0)
+    - GoogleUtilities/MethodSwizzler (~> 6.0)
+    - GoogleUtilities/Network (~> 6.0)
+    - "GoogleUtilities/NSData+zlib (~> 6.0)"
+    - nanopb (~> 1.30905.0)
+  - GoogleDataTransport (7.0.0):
+    - nanopb (~> 1.30905.0)
+  - GoogleMaps (3.9.0):
+    - GoogleMaps/Maps (= 3.9.0)
+  - GoogleMaps/Base (3.9.0)
+  - GoogleMaps/Maps (3.9.0):
+    - GoogleMaps/Base
+  - GooglePlaces (3.9.0):
+    - GoogleMaps/Base (= 3.9.0)
+  - GoogleUtilities/AppDelegateSwizzler (6.7.1):
+    - GoogleUtilities/Environment
+    - GoogleUtilities/Logger
+    - GoogleUtilities/Network
+  - GoogleUtilities/Environment (6.7.1):
+    - PromisesObjC (~> 1.2)
+  - GoogleUtilities/Logger (6.7.1):
+    - GoogleUtilities/Environment
+  - GoogleUtilities/MethodSwizzler (6.7.1):
+    - GoogleUtilities/Logger
+  - GoogleUtilities/Network (6.7.1):
+    - GoogleUtilities/Logger
+    - "GoogleUtilities/NSData+zlib"
+    - GoogleUtilities/Reachability
+  - "GoogleUtilities/NSData+zlib (6.7.1)"
+  - GoogleUtilities/Reachability (6.7.1):
+    - GoogleUtilities/Logger
+  - GoogleUtilities/UserDefaults (6.7.1):
+    - GoogleUtilities/Logger
+  - GSImageViewerController (1.6.2)
+  - GTMSessionFetcher/Core (1.4.0)
+  - IQKeyboardManagerSwift (6.5.5)
+  - ISEmojiView (0.2.6)
+  - Kingfisher (5.14.1):
+    - Kingfisher/Core (= 5.14.1)
+  - Kingfisher/Core (5.14.1)
+  - leveldb-library (1.22)
+  - MarqueeLabel (4.0.2)
+  - moa (12.0.0)
+  - MultiSlider (1.10.11):
+    - AvailableHapticFeedback
+    - SweeterSwift
+  - nanopb (1.30905.0):
+    - nanopb/decode (= 1.30905.0)
+    - nanopb/encode (= 1.30905.0)
+  - nanopb/decode (1.30905.0)
+  - nanopb/encode (1.30905.0)
+  - OneSignal (2.14.3)
+  - PromisesObjC (1.2.9)
+  - Protobuf (3.12.0)
+  - PryntTrimmerView (4.0.0)
+  - SCLAlertView (0.8)
+  - SDWebImage (5.8.4):
+    - SDWebImage/Core (= 5.8.4)
+  - SDWebImage/Core (5.8.4)
+  - SJSegmentedScrollView (1.5.0)
+  - SQLite (0.1.17)
+  - SteviaLayout (4.7.3)
+  - SweeterSwift (1.1.3)
+  - SwiftGifOrigin (1.7.0)
+  - SwiftVideoBackground (3.4.0)
+  - SwiftyJSON (5.0.0)
+  - TextFieldEffects (1.6.0)
+  - Toast-Swift (5.0.1)
+  - YoutubePlayerView (1.2.1)
+  - YPImagePicker (4.2.1):
+    - PryntTrimmerView (~> 4.0.0)
+    - SteviaLayout (~> 4.7.3)
+
+DEPENDENCIES:
+  - Alamofire (~> 4.0)
+  - ALCameraViewController
+  - ASPVideoPlayer
+  - Auk
+  - Cosmos
+  - CountryPickerView
+  - DropDown
+  - DynamicBlurView
+  - Firebase/Analytics
+  - Firebase/Core
+  - Firebase/Database
+  - Firebase/Storage
+  - FirebaseMessaging
+  - FlexibleAVCapture
+  - FluidTabBarController
+  - GoogleMaps
+  - GooglePlaces
+  - GSImageViewerController
+  - IQKeyboardManagerSwift
+  - ISEmojiView
+  - Kingfisher
+  - MarqueeLabel
+  - moa
+  - MultiSlider
+  - OneSignal (< 3.0, >= 2.9.3)
+  - SCLAlertView
+  - SDWebImage
+  - SJSegmentedScrollView
+  - SQLite
+  - SwiftGifOrigin
+  - SwiftVideoBackground
+  - SwiftyJSON
+  - TextFieldEffects
+  - Toast-Swift
+  - YoutubePlayerView
+  - YPImagePicker
+
+SPEC REPOS:
+  trunk:
+    - Alamofire
+    - ALCameraViewController
+    - ASPVideoPlayer
+    - Auk
+    - AvailableHapticFeedback
+    - Cosmos
+    - CountryPickerView
+    - DropDown
+    - DynamicBlurView
+    - Firebase
+    - FirebaseAnalytics
+    - FirebaseCore
+    - FirebaseCoreDiagnostics
+    - FirebaseDatabase
+    - FirebaseInstallations
+    - FirebaseInstanceID
+    - FirebaseMessaging
+    - FirebaseStorage
+    - FlexibleAVCapture
+    - FluidTabBarController
+    - GoogleAppMeasurement
+    - GoogleDataTransport
+    - GoogleMaps
+    - GooglePlaces
+    - GoogleUtilities
+    - GSImageViewerController
+    - GTMSessionFetcher
+    - IQKeyboardManagerSwift
+    - ISEmojiView
+    - Kingfisher
+    - leveldb-library
+    - MarqueeLabel
+    - moa
+    - MultiSlider
+    - nanopb
+    - OneSignal
+    - PromisesObjC
+    - Protobuf
+    - PryntTrimmerView
+    - SCLAlertView
+    - SDWebImage
+    - SJSegmentedScrollView
+    - SQLite
+    - SteviaLayout
+    - SweeterSwift
+    - SwiftGifOrigin
+    - SwiftVideoBackground
+    - SwiftyJSON
+    - TextFieldEffects
+    - Toast-Swift
+    - YoutubePlayerView
+    - YPImagePicker
+
+SPEC CHECKSUMS:
+  Alamofire: 85e8a02c69d6020a0d734f6054870d7ecb75cf18
+  ALCameraViewController: 144dea45fd749a623aafd8cb7b10cea88499fcc3
+  ASPVideoPlayer: 7a92fafe62d7b0615520f2ec33a9fbd05483a999
+  Auk: 7cc533252e2caaaa36b2be19c0b799f6057c365a
+  AvailableHapticFeedback: 9b21b9f6d3e4566015988b5de35b40abefe6c09a
+  Cosmos: 2795b36ad4bbea1af3050d6d65576ed63875f86a
+  CountryPickerView: 08ff5f391143aa79e2ae21b0eaa5c15395a80d22
+  DropDown: 8a2116376c1981888557f72ec2ffc9a5e0e456ec
+  DynamicBlurView: b57e2f6aa33f85b2bcca272265162a3c7c5cc499
+  Firebase: ed042590caa0029392257529a8003c25ee82bc18
+  FirebaseAnalytics: 5fa308e1b13f838d0f6dc74719ac2a72e8c5afc4
+  FirebaseCore: 687b8e6a0a4337b898a6326d68254c2f80c143af
+  FirebaseCoreDiagnostics: 7535fe695737f8c5b350584292a70b7f8ff0357b
+  FirebaseDatabase: 55e69fe802ccb438d9c6ee51eb32fd425d5409d3
+  FirebaseInstallations: 3c520c951305cbf9ca54eb891ff9e6d1fd384881
+  FirebaseInstanceID: 358d5cb393d2750a745569ede06827c35aea530b
+  FirebaseMessaging: bdd4d573eab37ebee29bad4e7c4b0ef18fa1a952
+  FirebaseStorage: 3ef81ca5fa7817f85451ca09d516a34d2c7542a7
+  FlexibleAVCapture: 0e24d80f5dc48b77604613bdca39eed32222e881
+  FluidTabBarController: 14b2e61bcf03bc362ec2f4cba0dc804ee0a9c268
+  GoogleAppMeasurement: 8cd1f289d60e629cf16ab03363b9e89c776b9651
+  GoogleDataTransport: 8a40cb194ad242b6f6dfe72c14fe40fc67c4dcd7
+  GoogleMaps: 4b5346bddfe6911bb89155d43c903020170523ac
+  GooglePlaces: 1634d019549b969d40fe0ccb0b9513055adebe01
+  GoogleUtilities: e121a3867449ce16b0e35ddf1797ea7a389ffdf2
+  GSImageViewerController: 3b8fb7d2ab7596152329d7910eeb1905b2284cb9
+  GTMSessionFetcher: 6f5c8abbab8a9bce4bb3f057e317728ec6182b10
+  IQKeyboardManagerSwift: 0fb93310284665245591f50f7a5e38de615960b7
+  ISEmojiView: f7cd94a6c93307f429ec5da001293d0b02247f03
+  Kingfisher: 8050bc6f7f68cbf3908bd04df7ccbac188f6d6d6
+  leveldb-library: 55d93ee664b4007aac644a782d11da33fba316f7
+  MarqueeLabel: f762aa681ae201f66c1d511858b171f75d83013a
+  moa: e2346f12de6c65bbca4d103950d45db9e46785ef
+  MultiSlider: 606824c5e1c25091eb64fac673b193276fc46f7a
+  nanopb: c43f40fadfe79e8b8db116583945847910cbabc9
+  OneSignal: 7dfe466265c05f02b95a274b9c997a0619ad2117
+  PromisesObjC: b48e0338dbbac2207e611750777895f7a5811b75
+  Protobuf: 2793fcd0622a00b546c60e7cbbcc493e043e9bb9
+  PryntTrimmerView: 67e67573ffd4c073f1308effa66aefd0cfa667a0
+  SCLAlertView: 6a77bb2edfc65e04dbe57725546cb4107a506b85
+  SDWebImage: cf6922231e95550934da2ada0f20f2becf2ceba9
+  SJSegmentedScrollView: 67ca97389a9c3a409d3b54c88781f031f5091c61
+  SQLite: fb71d10293cab804bcb1c40c66ff61e35b40de69
+  SteviaLayout: c2ecdcff57d44e38fd2f65e54ad52aeae28ca0c4
+  SweeterSwift: d909211f6833405628c8c7c6bf9f8f2e8a0e9df9
+  SwiftGifOrigin: fbd6cf37afcfcf97a5c3db996ddc0492e5c5c145
+  SwiftVideoBackground: 826e0567c737ded2a211aa309e9951c643695e8f
+  SwiftyJSON: 36413e04c44ee145039d332b4f4e2d3e8d6c4db7
+  TextFieldEffects: 529b8aff706fb40f82c41c780c0777941a893796
+  Toast-Swift: 9b6a70f28b3bf0b96c40d46c0c4b9d6639846711
+  YoutubePlayerView: 3870fc10f2db3f54156697757f44d304203bdc7e
+  YPImagePicker: 3b88ca0c50134af2856c48c481572c98a8b8b65b
+
+PODFILE CHECKSUM: ea0a1d957d8bd5940141e3a36de729eb8750dbbe
+
+COCOAPODS: 1.9.3

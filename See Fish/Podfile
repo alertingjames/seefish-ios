@@ -1,0 +1,57 @@
+# Uncomment the next line to define a global platform for your project
+# platform :ios, '9.0'
+
+target 'See Fish' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  # Pods for See Fish
+
+  target 'See FishTests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+
+  target 'See FishUITests' do
+    # Pods for testing
+  end
+
+
+pod 'Alamofire', '~> 4.0'
+pod 'SwiftyJSON'
+pod 'Firebase/Core'
+pod 'FirebaseMessaging'
+pod 'Firebase/Database'
+pod 'Firebase/Analytics'
+pod 'Firebase/Storage'
+pod 'SQLite'
+pod 'IQKeyboardManagerSwift'
+pod 'Toast-Swift'
+pod 'Kingfisher'
+pod 'YPImagePicker'
+pod 'MultiSlider'
+pod 'Cosmos'
+pod 'SCLAlertView'
+pod 'CountryPickerView'
+pod 'moa'
+pod 'Auk'
+pod 'DynamicBlurView'
+pod 'GSImageViewerController'
+pod 'SwiftGifOrigin'
+pod 'OneSignal', '>= 2.9.3', '< 3.0'
+pod 'GoogleMaps'
+pod 'GooglePlaces'
+pod 'DropDown'
+pod 'MarqueeLabel'
+pod 'YoutubePlayerView'
+pod 'ASPVideoPlayer'
+pod 'SDWebImage'
+pod 'SJSegmentedScrollView'
+pod 'TextFieldEffects'
+pod 'FluidTabBarController'
+pod 'FlexibleAVCapture'
+pod 'SwiftVideoBackground'
+pod 'ISEmojiView'
+pod 'ALCameraViewController'
+
+end

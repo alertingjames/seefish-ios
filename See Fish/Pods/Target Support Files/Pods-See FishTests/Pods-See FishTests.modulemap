@@ -1,0 +1,6 @@
+framework module Pods_See_FishTests {
+  umbrella header "Pods-See FishTests-umbrella.h"
+
+  export *
+  module * { export * }
+}

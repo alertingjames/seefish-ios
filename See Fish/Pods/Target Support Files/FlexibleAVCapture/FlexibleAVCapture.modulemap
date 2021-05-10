@@ -1,0 +1,6 @@
+framework module FlexibleAVCapture {
+  umbrella header "FlexibleAVCapture-umbrella.h"
+
+  export *
+  module * { export * }
+}
