@@ -32,6 +32,11 @@
 	<string>Please allow access to pick photo in your photo library in order to complete your profile info you want to register.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Please allow access to pick photo in your photo library in order to complete your profile info you want to register.</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Comfortaa-Bold</string>
+		<string>Comfortaa-Medium</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -53,6 +58,11 @@
 	</dict>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

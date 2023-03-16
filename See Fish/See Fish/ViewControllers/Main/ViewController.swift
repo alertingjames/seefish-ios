@@ -18,6 +18,8 @@ class ViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        authMesOpt = ""
+        
 //        UserDefaults.standard.setValue("", forKey: "email")
 //        UserDefaults.standard.setValue("", forKey: "password")
         
@@ -70,12 +72,36 @@ class ViewController: BaseViewController {
                     vc.modalPresentationStyle = .fullScreen
                     self.transitionVc(vc: vc, duration: 0.3, type: .fromRight)
                 }
-            }else if result_code == "1" {
+            } else if result_code == "-1" {
+                // No verified - Emailed verification
+                authMesOpt = "email_sent"
+                let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "LoginViewController")
+                vc.modalPresentationStyle = .fullScreen
+                self.transitionVc(vc: vc, duration: 0.3, type: .fromRight)
+            } else if result_code == "-2" {
+                // No verified - Emailing had error
+                authMesOpt = "email_failed"
+                let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "LoginViewController")
+                vc.modalPresentationStyle = .fullScreen
+                self.transitionVc(vc: vc, duration: 0.3, type: .fromRight)
+            } else if result_code == "-10" {
+                // No verified - Emailed verification
+                authMesOpt = "upgrade_email_sent"
+                let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "LoginViewController")
+                vc.modalPresentationStyle = .fullScreen
+                self.transitionVc(vc: vc, duration: 0.3, type: .fromRight)
+            } else if result_code == "-20" {
+                // No verified - Emailing had error
+                authMesOpt = "upgrade_email_failed"
+                let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "LoginViewController")
+                vc.modalPresentationStyle = .fullScreen
+                self.transitionVc(vc: vc, duration: 0.3, type: .fromRight)
+            } else if result_code == "1" {
                 // incorrect password
                 let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "LoginViewController")
                 vc.modalPresentationStyle = .fullScreen
                 self.transitionVc(vc: vc, duration: 0.3, type: .fromRight)
-            }else if result_code == "2" {
+            } else if result_code == "2" {
                 // unregistered user
                 let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "SignupViewController")
                 vc.modalPresentationStyle = .fullScreen

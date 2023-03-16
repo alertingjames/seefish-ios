@@ -24,8 +24,10 @@ class User{
     var followed:Bool = false
     var feeds:Int64 = 0
     var fcm_token:String = ""
+    var os_playerid:String = ""
     var username:String = ""
     var terms:String = ""
+    var auth_status:String = ""
     var status:String = ""
     
     var key:String = ""

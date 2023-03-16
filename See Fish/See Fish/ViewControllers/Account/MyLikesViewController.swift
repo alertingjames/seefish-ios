@@ -107,7 +107,9 @@ class MyLikesViewController: BaseViewController, UICollectionViewDelegate, UICol
         APIs.getMyLikes(member_id: thisUser.idx, handleCallback: { [self]
             likes, result_code in
             self.dismissLoadingView()
-            if result_code == "0"{
+            if result_code == "0" {
+                posts.removeAll()
+                searchPosts.removeAll()
                 for like in likes! {
                     let ps = gHomeViewController.searchPosts.filter{ post in
                         return post.idx == like.post_id

@@ -11,32 +11,28 @@ import IQKeyboardManagerSwift    // when keyboard appears, move textfield or tex
 import UserNotifications
 import GoogleMaps
 import GooglePlaces
-import FirebaseCore
-import FirebaseInstanceID
-import FirebaseMessaging
+import OneSignal
 
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, MessagingDelegate {
-
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    
+    var window: UIWindow?
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        self.window = UIWindow(frame: UIScreen.main.bounds)
         
         IQKeyboardManager.shared.enable = true
+        ConnectionManager.sharedInstance.observeReachability()
         
         GMSServices.provideAPIKey(apikey)
         GMSPlacesClient.provideAPIKey(apikey)
         
         UNUserNotificationCenter.current().delegate = self
-        Messaging.messaging().delegate = self
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound], completionHandler: {
             granted, error in
             print("granted: \(granted)")
         })
         // Register with APNs
         UIApplication.shared.registerForRemoteNotifications()
-        
-        if FirebaseApp.app() == nil {
-            FirebaseApp.configure()
-        }
         
         // Register for remote notifications. This shows a permission dialog on first run, to
         // show the dialog at a more appropriate time move this registration accordingly.
@@ -53,6 +49,73 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             application.registerUserNotificationSettings(settings)
         }
         application.registerForRemoteNotifications()
+        
+        // Remove this method to stop OneSignal Debugging
+        OneSignal.setLogLevel(.LL_VERBOSE, visualLevel: .LL_NONE)
+        
+        let onesignalInitSettings = [kOSSettingsKeyAutoPrompt: false, kOSSettingsKeyInAppLaunchURL: false]
+        
+        let notificationReceivedBlock: OSHandleNotificationReceivedBlock = { [self] notification in
+            print("Received Notification - \(notification?.payload.notificationID) - \(notification?.payload.title)")
+            if let actionID = notification?.payload.additionalData["act"] as? Int {
+                if actionID == 1 {
+                    if gHomeViewController != nil {
+                        gHomeViewController.routeFollowingsBar.visibility = .visible
+                    }
+                }
+            }
+        }
+
+        let notificationOpenedBlock: OSHandleNotificationActionBlock = { result in
+            // This block gets called when the user reacts to a notification received
+            let payload: OSNotificationPayload = result!.notification.payload
+
+            var fullMessage = payload.body
+            print("Message = \(fullMessage)")
+            print("data = \(payload.additionalData)")
+            print("title = \(payload.title)")
+
+            print("App URL: \(payload.launchURL ?? "No lanuch Url")")
+
+            if payload.additionalData != nil {
+                if let actionID = payload.additionalData["act"] as? Int {
+                    print("action ID +++ \(actionID)")
+                    if actionID == 1 {
+                        UserDefaults.standard.set(actionID, forKey: "actionID")
+                        UIApplication.shared.applicationIconBadgeNumber = 0
+                        if let topController = UIApplication.shared.topViewController() {
+                            if topController is BaseViewController && topController != gRouteFollowingsViewController {
+                                if recent != nil {
+                                    let vc = UIStoryboard(name: "Main2", bundle: nil).instantiateViewController(withIdentifier: "RouteFollowingsViewController")
+                                    vc.modalPresentationStyle = .fullScreen
+                                    topController.present(vc, animated: true, completion: nil)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if payload.title != nil {
+                    let messageTitle = payload.title
+                    print("Message Title = \(messageTitle!)")
+                }
+           }
+
+        }
+        
+        OneSignal.initWithLaunchOptions(launchOptions, appId: "5db38391-6853-4e88-8f8b-6cfb4b892f5b", handleNotificationReceived: notificationReceivedBlock, handleNotificationAction: notificationOpenedBlock, settings: onesignalInitSettings)
+        
+        OneSignal.inFocusDisplayType = OSNotificationDisplayType.notification
+        
+        // OneSignal initialization
+//        OneSignal.initWithLaunchOptions(launchOptions, appId: "5db38391-6853-4e88-8f8b-6cfb4b892f5b")
+          
+        // promptForPushNotifications will show the native iOS notification permission prompt.
+        // We recommend removing the following code and instead using an In-App Message to prompt for notification permission (See step 8)
+        
+        OneSignal.promptForPushNotifications(userResponse: { accepted in
+            print("User accepted notifications: \(accepted)")
+        })
         
         
         return true
@@ -74,7 +137,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-        connectFCM()
     }
 
     func applicationWillTerminate(_ application: UIApplication) {
@@ -82,7 +144,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         self.saveContext()
     }
 
-    // Firebase notification received
+    
     func userNotificationCenter(_ center: UNUserNotificationCenter,  willPresent notification: UNNotification, withCompletionHandler   completionHandler: @escaping (_ options:   UNNotificationPresentationOptions) -> Void) {
         
         // custom code to handle push while app is in the foreground
@@ -119,7 +181,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
          application to it. This property is optional since there are legitimate
          error conditions that could cause the creation of the store to fail.
          */
-        let container = NSPersistentContainer(name: "Seefish")
+        let container = NSPersistentContainer(name: "See Fish")
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error as NSError? {
                 // Replace this implementation with code to handle the error appropriately.
@@ -155,44 +217,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
     }
     
-    func connectFCM(){
-        Messaging.messaging().shouldEstablishDirectChannel = true
-    }
-    
-    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String) {
-        InstanceID.instanceID().instanceID { (result, error) in
-            if let error = error {
-                print("Error fetching remote instange ID: \(error)")
-            } else if let result = result {
-                print("Remote instance ID token: \(result.token)")
-            }
-        }
-        
-        print("Firebase registration token: \(fcmToken)")
-        gFCMToken = fcmToken
-        
-        let dataDict:[String: String] = ["token": fcmToken]
-        NotificationCenter.default.post(name: NSNotification.Name("FCMToken"), object: nil, userInfo: dataDict)
-        // TODO: If necessary send token to application server.
-        // Note: This callback is fired at each app startup and whenever a new token is generated.
-        
-        connectFCM()
-    }
-    
-    // [END refresh_token]
-    // [START ios_10_data_message]
-    // Receive data messages on iOS 10+ directly from FCM (bypassing APNs) when the app is in the foreground.
-    // To enable direct data messages, you can set Messaging.messaging().shouldEstablishDirectChannel to true.
-    func messaging(_ messaging: Messaging, didReceive remoteMessage: MessagingRemoteMessage) {
-        print("Received data message: \(remoteMessage.appData)")
-    }
-    
-    func messaging(_ messaging: Messaging, didRefreshRegistrationToken fcmToken: String) {
-        print("Token refreshed")
-    }
-    
-    func updateBadgeCount()
-    {
+    func updateBadgeCount() {
         var badgeCount = UIApplication.shared.applicationIconBadgeNumber
         if badgeCount > 0
         {
@@ -201,6 +226,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         
         UIApplication.shared.applicationIconBadgeNumber = badgeCount
     }
+    
+    
 
 }
+
 

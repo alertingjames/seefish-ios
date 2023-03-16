@@ -18,7 +18,6 @@ var primaryDarkColor = UIColor(rgb: 0x064273, alpha: 1.0)
 
 ////////// Request URL /////////////////
 let SERVER_URL = "https://cayley5.pythonanywhere.com/seefish/"
-let FIREBASE_URL = "https://motherwise-1585202524394.firebaseio.com/"
 
 
 /////////// Map ////////////////////////////////
@@ -31,14 +30,16 @@ var apikey:String = "AIzaSyAALGjqJwiEBEYax5vMuWexhuPZCpsh8Lg"
 var gFCMToken:String = ""
 var gPostPictures = [PostPicture]()
 var gMediaOption = ""
-
-
-
+var gCategoryList = [FishCategory]()
+var isConnectedToNetwork:Bool = false
+var authMesOpt:String = ""
 
 ///////// ViewController //////////////////////////
 var recent:UIViewController!
 
 var gSignupViewController:SignupViewController!
+var gImageSubmitViewController:ImageSubmitViewController!
+var gEditImagePostViewController:EditImagePostViewController!
 var gVideoSubmitViewController:VideoSubmitViewController!
 var gMainViewController:MainViewController!
 
@@ -55,10 +56,9 @@ var gFeedContainerViewController:FeedContainerViewController!
 var gFriendContainerViewController:FriendContainerViewController!
 
 var gFishViewController:FishViewController!
-
-
-
-
+var gLocationSharingViewController:LocationSharingViewController!
+var gLocationRouteHistoryViewController:LocationRouteHistoryViewController!
+var gRouteFollowingsViewController:RouteFollowingsViewController!
 
 
 

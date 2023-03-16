@@ -10,8 +10,9 @@ import YPImagePicker
 import GSImageViewerController
 import AVFoundation
 import MobileCoreServices
+import CoreLocation
 
-class ImageSubmitViewController: BaseViewController, YPImagePickerDelegate, UINavigationControllerDelegate {
+class ImageSubmitViewController: BaseViewController, CLLocationManagerDelegate, UINavigationControllerDelegate {
     func noPhotos() {
         print("No photos")
     }
@@ -31,12 +32,26 @@ class ImageSubmitViewController: BaseViewController, YPImagePickerDelegate, UINa
     @IBOutlet weak var lbl_files: UILabel!
     @IBOutlet weak var bgImg: UIImageView!
     
+    @IBOutlet weak var titleBox: UITextField!
+    @IBOutlet weak var categoryView: UIView!
+    @IBOutlet weak var categoryBox: UITextField!
+    @IBOutlet weak var rodBox: UITextField!
+    @IBOutlet weak var reelBox: UITextField!
+    @IBOutlet weak var lureBox: UITextField!
+    @IBOutlet weak var lineBox: UITextField!
+    @IBOutlet weak var locationView: UIView!
+    @IBOutlet weak var locationSharingSW: UISwitch!
+    @IBOutlet weak var submitButton: UIButton!
+    
     var sliderImagesArray = NSMutableArray()
     var sliderImageFilesArray = NSMutableArray()
     var videoURL:URL!
     
     var config = YPImagePickerConfiguration()
     var picker = YPImagePicker()
+    
+    var manager = CLLocationManager()
+    var thisUserLocation:CLLocationCoordinate2D!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,22 +70,70 @@ class ImageSubmitViewController: BaseViewController, YPImagePickerDelegate, UINa
         
         txv_desc.delegate = self
         txv_desc.setPlaceholder(string: "Write something here...")
-        txv_desc.textContainerInset = UIEdgeInsets(top: txv_desc.textContainerInset.top, left: 8, bottom: txv_desc.textContainerInset.bottom, right: txv_desc.textContainerInset.right)
+        txv_desc.textContainerInset = UIEdgeInsets(top: txv_desc.textContainerInset.top, left: 10, bottom: txv_desc.textContainerInset.bottom, right: txv_desc.textContainerInset.right)
+        
+        submitButton.layer.cornerRadius = submitButton.frame.height / 2
+        titleBox.addBorder(side: .bottom, color: UIColor(rgb: 0x000000, alpha: 0.7), width: 1)
+        categoryBox.addBorder(side: .bottom, color: UIColor(rgb: 0x000000, alpha: 0.7), width: 1)
+        txv_desc.addBorder(side: .bottom, color: UIColor(rgb: 0x000000, alpha: 0.7), width: 1)
+        rodBox.addBorder(side: .bottom, color: UIColor(rgb: 0x000000, alpha: 0.7), width: 1)
+        reelBox.addBorder(side: .bottom, color: UIColor(rgb: 0x000000, alpha: 0.7), width: 1)
+        lureBox.addBorder(side: .bottom, color: UIColor(rgb: 0x000000, alpha: 0.7), width: 1)
+        lineBox.addBorder(side: .bottom, color: UIColor(rgb: 0x000000, alpha: 0.7), width: 1)
+        
+        if CLLocationManager.locationServicesEnabled() {
+            switch CLLocationManager.authorizationStatus() {
+                case .notDetermined, .restricted, .denied:
+                    print("No access")
+                locationView.visibility = .gone
+                locationSharingSW.isOn = false
+                case .authorizedAlways, .authorizedWhenInUse:
+                    print("Access")
+                @unknown default:
+                    break
+            }
+        } else {
+            print("Location services are not enabled")
+            locationView.visibility = .gone
+            locationSharingSW.isOn = false
+        }
         
         config.wordings.libraryTitle = "Gallery"
         config.wordings.cameraTitle = "Camera"
-        config.hidesStatusBar = false
         YPImagePickerConfiguration.shared = config
         
+        manager.delegate = self
+        manager.requestWhenInUseAuthorization()
+        manager.desiredAccuracy = kCLLocationAccuracyBest
+        // locationManager.allowDeferredLocationUpdates(untilTraveled: 0, timeout: 0)
+        if CLLocationManager.locationServicesEnabled() {
+            manager.startUpdatingLocation()
+            // manager.startUpdatingHeading()
+        }
+        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        recent = self
+        gImageSubmitViewController = self
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if locations.count > 0{
+            let userLocation = locations.last!
+            print("locations = \(locations)")
+            let center = CLLocationCoordinate2D(latitude: (userLocation.coordinate.latitude), longitude: (userLocation.coordinate.longitude))
+            thisUserLocation = center
+        }        
     }
     
     func textViewDidChange(_ textView: UITextView) { //Handle the text changes here
         textView.checkPlaceholder()
     }
     
-    override var preferredStatusBarStyle : UIStatusBarStyle {
-        return .lightContent
-    }
+//    override var preferredStatusBarStyle : UIStatusBarStyle {
+//        return .lightContent
+//    }
     
     override var prefersStatusBarHidden: Bool{
         return true
@@ -100,6 +163,7 @@ class ImageSubmitViewController: BaseViewController, YPImagePickerDelegate, UINa
     func loadPictures(){
         print("Files: \(sliderImageFilesArray.count)")
         lbl_files.text = "Loaded: " +  String(sliderImagesArray.count)
+        image_scrollview.subviews.forEach { $0.removeFromSuperview() }
         for i in 0..<sliderImagesArray.count {
             var imageView : UIImageView
             let xOrigin = self.image_scrollview.frame.width * CGFloat(i)
@@ -169,11 +233,23 @@ class ImageSubmitViewController: BaseViewController, YPImagePickerDelegate, UINa
             showToast(msg: "Please load at least one picture.")
             return
         }
+        if titleBox.text!.count == 0 {
+            showToast(msg: "Please enter title.")
+            return
+        }
         
         let parameters: [String:Any] = [
             "post_id" : "0",
             "member_id" : String(thisUser.idx),
+            "title": titleBox.text as Any,
+            "category": categoryBox.text as Any,
+            "rod": rodBox.text as Any,
+            "reel": reelBox.text as Any,
+            "lure": lureBox.text as Any,
+            "line": lineBox.text as Any,
             "content" : self.txv_desc.text as Any,
+            "lat": locationSharingSW.isOn && thisUserLocation != nil ? String(thisUserLocation.latitude) : "",
+            "lng": locationSharingSW.isOn && thisUserLocation != nil ? String(thisUserLocation.longitude) : "",
             "pic_count" : String(self.sliderImageFilesArray.count) as Any,
         ]
         
@@ -211,6 +287,16 @@ class ImageSubmitViewController: BaseViewController, YPImagePickerDelegate, UINa
     @IBAction func back(_ sender: Any) {
         self.dismiss(animated: true, completion: nil)
     }
+    
+    @IBAction func openCategoryMenu(_ sender: Any) {
+        to(strb: "Main2", vc: "CategoryListViewController", trans: false, modal: false, anim: true)
+    }
+    
+    @IBAction func changeIfLocationShare(_ sender: Any) {
+        
+    }
+    
+    
     
 }
 

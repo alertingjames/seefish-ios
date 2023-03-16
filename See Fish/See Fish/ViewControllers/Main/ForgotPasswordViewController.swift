@@ -24,7 +24,7 @@ class ForgotPasswordViewController: BaseViewController {
         emailBox.placeholder = "Email address"
         emailBox.minimumFontSize = 5
         emailBox.textColor = primaryDarkColor
-        emailBox.font = UIFont(name: "Helvetica", size: 19)        
+        emailBox.font = UIFont(name: "Helvetica", size: 17)        
         emailBox.keyboardType = UIKeyboardType.emailAddress
         
         setRoundShadowButton(button: submitBtn, corner: submitBtn.frame.height/2)
@@ -71,12 +71,16 @@ class ForgotPasswordViewController: BaseViewController {
             self.dismissLoadingView()
             print(result_code)
             if result_code == "0"{
-                self.showToast2(msg: "We've sent a password reset link to your email. Please check...")
-                self.openMailBox(email: email)
+                let msg = """
+                We've sent a password reset link to
+                your email. Please check...
+                """
+                self.showAlertDialog(title: "Notice", message: msg)
+//                self.openMailBox(email: email)
             }else if result_code == "1"{
                 self.showToast(msg: "Sorry, but we don\'t know your email.")
             }else {
-                self.showToast(msg: "Something is wrong")
+                self.showToast(msg: "Server error!")
             }
         })
     }

@@ -38,7 +38,7 @@ class PasswordResetViewController: BaseViewController {
         newBox.font = UIFont(name: "Helvetica", size: 19)
         newBox.isSecureTextEntry = true
         
-        confirmBox.placeholder = "Confirm Password"
+        confirmBox.placeholder = "Same Password"
         confirmBox.minimumFontSize = 5
         confirmBox.paddingRightCustom = 35
         confirmBox.textColor = .label

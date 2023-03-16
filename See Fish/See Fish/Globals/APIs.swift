@@ -54,6 +54,7 @@ class APIs {
                         user.feeds = Int64(data["feeds"] as! String)!
                         user.fcm_token = data["fcm_token"] as! String
                         user.terms = data["terms"] as! String
+                        user.auth_status = data["auth_status"] as! String
                         user.status = data["status"] as! String
                         
                         handleCallback(user, result_code)
@@ -317,6 +318,7 @@ class APIs {
                         user.feeds = Int64(data["feeds"] as! String)!
                         user.fcm_token = data["fcm_token"] as! String
                         user.terms = data["terms"] as! String
+                        user.auth_status = data["auth_status"] as! String
                         user.status = data["status"] as! String
                         
                         comment.user = user
@@ -367,6 +369,17 @@ class APIs {
                         var data = json["post"].object as! [String: Any]
                         let post = Post()
                         post.idx = data["id"] as! Int64
+                        post.title = data["title"] as! String
+                        post.category = data["category"] as! String
+                        post.color = data["color"] as! String
+                        post.rod = data["rod"] as! String
+                        post.reel = data["reel"] as! String
+                        post.lure = data["lure"] as! String
+                        post.line = data["line"] as! String
+                        let latstr = data["lat"] as! String
+                        if latstr != "" { post.lat = Double(latstr)! }
+                        let lngstr = data["lng"] as! String
+                        if lngstr != "" { post.lng = Double(lngstr)! }
                         post.content = data["content"] as! String
                         post.picture_url = data["picture_url"] as! String
                         post.video_url = data["video_url"] as! String
@@ -410,6 +423,7 @@ class APIs {
                         user.feeds = Int64(data["feeds"] as! String)!
                         user.fcm_token = data["fcm_token"] as! String
                         user.terms = data["terms"] as! String
+                        user.auth_status = data["auth_status"] as! String
                         user.status = data["status"] as! String
                         
                         post.user = user
@@ -446,9 +460,7 @@ class APIs {
             
             if response.result.isFailure{
                 handleCallback("Server issue")
-            }
-            else
-            {
+            } else {
                 let json = JSON(response.result.value!)
                 NSLog("SEND MESSAGE response: \(json)")
                 let result_code = json["result_code"].stringValue
@@ -585,7 +597,7 @@ class APIs {
     }
     
     
-    static func postVideo(post_id: Int64, member_id:Int64, content:String, video_url: URL, thumbnail: Data, handleCallback: @escaping (String) -> ())
+    static func postVideo(post_id: Int64, member_id:Int64, title:String, category:String, content:String, rod:String, reel:String, lure:String, line:String, lat:String, lng:String, video_url: URL, thumbnail: Data, handleCallback: @escaping (String) -> ())
     {
         let url = SERVER_URL + "createvideopost"
         Alamofire.upload(
@@ -594,6 +606,14 @@ class APIs {
                 multipartFormData.append("\(post_id)".data(using: String.Encoding.utf8, allowLossyConversion: false)!, withName: "post_id")
                 multipartFormData.append("\(member_id)".data(using: String.Encoding.utf8, allowLossyConversion: false)!, withName: "member_id")
                 multipartFormData.append(content.data(using: String.Encoding.utf8, allowLossyConversion: false)!, withName: "content")
+                multipartFormData.append(title.data(using: String.Encoding.utf8, allowLossyConversion: false)!, withName: "title")
+                multipartFormData.append(category.data(using: String.Encoding.utf8, allowLossyConversion: false)!, withName: "category")
+                multipartFormData.append(rod.data(using: String.Encoding.utf8, allowLossyConversion: false)!, withName: "rod")
+                multipartFormData.append(reel.data(using: String.Encoding.utf8, allowLossyConversion: false)!, withName: "reel")
+                multipartFormData.append(lure.data(using: String.Encoding.utf8, allowLossyConversion: false)!, withName: "lure")
+                multipartFormData.append(line.data(using: String.Encoding.utf8, allowLossyConversion: false)!, withName: "line")
+                multipartFormData.append(lat.data(using: String.Encoding.utf8, allowLossyConversion: false)!, withName: "lat")
+                multipartFormData.append(lng.data(using: String.Encoding.utf8, allowLossyConversion: false)!, withName: "lng")
                 multipartFormData.append(video_url, withName: "video")
                 multipartFormData.append(thumbnail, withName: "thumbnail", fileName: String(Int64(Date().timeIntervalSince1970)) + ".jpg", mimeType: "image/jpeg")
         },
@@ -683,6 +703,32 @@ class APIs {
     }
     
     
+    static func registerOSToken(member_id:Int64, os_playerid:String, handleCallback: @escaping (String) -> ())
+    {
+        //NSLog(url)
+        let params = [
+            "member_id": String(member_id),
+            "player_id": os_playerid,
+            ] as [String : Any]
+        
+        Alamofire.request(SERVER_URL + "osupdatetoken", method: .post, parameters: params).responseJSON { response in
+            
+            if response.result.isFailure{
+                handleCallback("Server issue")
+            }
+            else
+            {
+                let json = JSON(response.result.value!)
+                if(json["result_code"].stringValue == "0"){
+                    handleCallback("0")
+                }else {
+                    handleCallback("Server issue")
+                }
+            }
+        }
+    }
+    
+    
     static func getallmembers(member_id: Int64, handleCallback: @escaping ([User]?, String) -> ())
     {
         //NSLog(url)
@@ -727,6 +773,7 @@ class APIs {
                         user.feeds = Int64(data["feeds"] as! String)!
                         user.fcm_token = data["fcm_token"] as! String
                         user.terms = data["terms"] as! String
+                        user.auth_status = data["auth_status"] as! String
                         user.status = data["status"] as! String
                         
                         users.append(user)
@@ -775,6 +822,17 @@ class APIs {
                         let data = json["post"].object as! [String: Any]
                         let post = Post()
                         post.idx = data["id"] as! Int64
+                        post.title = data["title"] as! String
+                        post.category = data["category"] as! String
+                        post.color = data["color"] as! String
+                        post.rod = data["rod"] as! String
+                        post.reel = data["reel"] as! String
+                        post.lure = data["lure"] as! String
+                        post.line = data["line"] as! String
+                        let latstr = data["lat"] as! String
+                        if latstr != "" { post.lat = Double(latstr)! }
+                        let lngstr = data["lng"] as! String
+                        if lngstr != "" { post.lng = Double(lngstr)! }
                         post.content = data["content"] as! String
                         post.picture_url = data["picture_url"] as! String
                         post.video_url = data["video_url"] as! String
@@ -894,6 +952,7 @@ class APIs {
                         user.feeds = Int64(data["feeds"] as! String)!
                         user.fcm_token = data["fcm_token"] as! String
                         user.terms = data["terms"] as! String
+                        user.auth_status = data["auth_status"] as! String
                         user.status = data["status"] as! String
                         
                         users.append(user)
@@ -957,6 +1016,7 @@ class APIs {
                         user.feeds = Int64(data["feeds"] as! String)!
                         user.fcm_token = data["fcm_token"] as! String
                         user.terms = data["terms"] as! String
+                        user.auth_status = data["auth_status"] as! String
                         user.status = data["status"] as! String
                         
                         users.append(user)
@@ -974,6 +1034,72 @@ class APIs {
             }
         }
     }
+    
+    
+    static func getRouteFollowings(me_id: Int64, handleCallback: @escaping ([User]?, String) -> ())
+    {
+        //NSLog(url)
+        
+        let params = [
+            "me_id":String(me_id),
+        ] as [String : Any]
+        
+        Alamofire.request(SERVER_URL + "routefollowings", method: .post, parameters: params).responseJSON { response in
+            
+            if response.result.isFailure{
+                handleCallback(nil, "Server issue")
+            }
+            else
+            {
+                let json = JSON(response.result.value!)
+                NSLog("Route Sharing Followings: \(json)")
+                let result_code = json["result_code"].stringValue
+                if(result_code == "0"){
+                    var users = [User]()
+                    let dataArray = json["users"].arrayObject as! [[String: Any]]
+                    for data in dataArray{
+                        let user = User()
+                        user.idx = data["id"] as! Int64
+                        user.name = data["name"] as! String
+                        user.email = data["email"] as! String
+                        user.password = data["password"] as! String
+                        user.photo_url = data["photo_url"] as! String
+                        user.phone_number = data["phone_number"] as! String
+                        user.city = data["city"] as! String
+                        user.address = data["address"] as! String
+                        user.lat = data["lat"] as! String
+                        user.lng = data["lng"] as! String
+                        user.registered_time = data["registered_time"] as! String
+                        user.followers = Int64(data["followers"] as! String)!
+                        user.followings = Int64(data["followings"] as! String)!
+                        if data["followed"] as! String == "yes"{
+                            user.followed = true
+                        }else {
+                            user.followed = false
+                        }
+                        user.feeds = Int64(data["feeds"] as! String)!
+                        user.fcm_token = data["fcm_token"] as! String
+                        user.terms = data["terms"] as! String
+                        user.auth_status = data["auth_status"] as! String
+                        user.status = data["status"] as! String
+                        
+                        users.append(user)
+                    }
+                    
+                    handleCallback(users, "0")
+                    
+                }else if result_code == "1" {
+                    handleCallback(nil, result_code)
+                }
+                else{
+                    handleCallback(nil, "Server issue")
+                }
+                
+            }
+        }
+    }
+    
+    
     
     static func getMemberLikes(member_id:Int64, handleCallback: @escaping (String, String) -> ())
     {
@@ -1037,13 +1163,21 @@ class APIs {
         }
     }
     
-    static func editPostWithoutVideo(member_id:Int64, post_id:Int64, content:String, handleCallback: @escaping (String) -> ())
+    static func editPostWithoutVideo(member_id:Int64, post_id:Int64, title:String, category:String, content:String, rod:String, reel:String, lure:String, line:String, lat:String, lng:String, handleCallback: @escaping (String) -> ())
     {
         //NSLog(url)
         let params: [String:Any] = [
             "post_id" : String(post_id),
             "member_id" : String(thisUser.idx),
+            "title": title,
+            "category": category,
             "content" : content,
+            "rod": rod,
+            "reel": reel,
+            "lure": lure,
+            "line": line,
+            "lat": lat,
+            "lng": lng,
         ]
         
         Alamofire.request(SERVER_URL + "createvideopost", method: .post, parameters: params).responseJSON { response in
@@ -1485,6 +1619,7 @@ class APIs {
                         user.feeds = Int64(data["feeds"] as! String)!
                         user.fcm_token = data["fcm_token"] as! String
                         user.terms = data["terms"] as! String
+                        user.auth_status = data["auth_status"] as! String
                         user.status = data["status"] as! String
                         
                         users.append(user)
@@ -1494,6 +1629,207 @@ class APIs {
                     
                 }else{
                     handleCallback(nil, "Server issue")
+                }
+                
+            }
+        }
+    }
+    
+    
+    //////////////////////// Location
+    
+    static func uploadStartOrEndRoute(route_id:Int64, member_id: Int64, name:String, description:String, start_time:String, end_time:String, duration:Int64, distance:Double, status:String, lat:String, lng:String, tm:String, handleCallback: @escaping (String, String) -> ()) {
+        //NSLog(url)
+        
+        let params = [
+            "route_id":String(route_id),
+            "member_id":String(member_id),
+            "name":name,
+            "description":description,
+            "start_time": start_time,
+            "end_time": end_time,
+            "duration": String(duration),
+            "distance": String(distance),
+            "status": status,
+            "lat":lat,
+            "lng":lng,
+            "tm":tm
+        ] as [String : Any]
+        
+        Alamofire.request(SERVER_URL + "SOEreporting", method: .post, parameters: params).responseJSON { response in
+            
+            if response.result.isFailure{
+                handleCallback("", "Server issue")
+            }
+            else
+            {
+                let json = JSON(response.result.value!)
+                NSLog("ROUTE STARTED OR ENDED: \(json)")
+                if(json["result_code"].stringValue == "0"){
+                    handleCallback(json["route_id"].stringValue, json["result_code"].stringValue)
+                }else{
+                    handleCallback("", "Server issue")
+                }
+                
+            }
+        }
+    }
+    
+    func uploadJsonFile(withUrl strURL: String,withParam postParam: Dictionary<String, Any>, withFiles fileArray:NSMutableArray,completion:@escaping (_ isSuccess: Bool, _ response:NSDictionary) -> Void)
+    {
+        
+        Alamofire.upload(multipartFormData: { (MultipartFormData) in
+            
+            // Here is your Image Array
+            for (fileDic) in fileArray
+            {
+                let fileDic = fileDic as! NSDictionary
+                
+                for (key,valus) in fileDic
+                {
+                    MultipartFormData.append(valus as! Data, withName:key as! String, fileName: String(NSDate().timeIntervalSince1970) + ".json", mimeType: "application/json")
+                }
+            }
+            
+            // Here is your Post paramaters
+            for (key, value) in postParam
+            {
+                MultipartFormData.append((value as AnyObject).data(using: String.Encoding.utf8.rawValue)!, withName: key)
+            }
+            
+        }, usingThreshold: UInt64.init(), to: strURL, method: .post) { (result) in
+            
+            switch result {
+            case .success(let upload, _, _):
+                
+                upload.uploadProgress(closure: { (progress) in
+                    print("Upload Progress: \(progress.fractionCompleted)")
+                })
+                
+                upload.responseJSON { response in
+                    
+                    if response.response?.statusCode == 200
+                    {
+                        let json = response.result.value as? NSDictionary
+                        
+                        completion(true,json!);
+                    }
+                    else
+                    {
+                        completion(false,[:]);
+                    }
+                }
+                
+            case .failure(let encodingError):
+                print(encodingError)
+                
+                completion(false,[:]);
+            }
+            
+        }
+    }
+    
+    
+    static func getRouteDetails(route_id: Int64, handleCallback: @escaping (Route?, [Point]?, String) -> ())
+    {
+        //NSLog(url)
+        let params = [
+            "route_id":String(route_id)
+        ] as [String : Any]
+        
+        Alamofire.request(SERVER_URL + "routedetails", method: .post, parameters: params).responseJSON { response in
+            if response.result.isFailure{
+                handleCallback(nil, nil, "Server issue")
+            }
+            else
+            {
+                let json = JSON(response.result.value!)
+                NSLog("\(json)")
+                if(json["result_code"].stringValue == "0"){
+                    let data = json["route"].object as! [String: Any]
+                    let route = Route()
+                    route.idx = data["id"] as! Int64
+                    route.user_id = Int64(data["member_id"] as! String)!
+                    route.name = data["name"] as! String
+                    route.description = data["description"] as! String
+                    route.start_time = data["start_time"] as! String
+                    route.end_time = data["end_time"] as! String
+                    route.duration = Int64(data["duration"] as! String)!
+                    route.distance = Double(data["distance"] as! String)!
+                    route.created_on = data["created_on"] as! String
+                    route.status = data["status"] as! String
+                    
+                    var points = [Point]()
+                    let dataArray = json["points"].arrayObject as! [[String: Any]]
+                    for data in dataArray{
+                        let point = Point()
+                        point.idx = data["id"] as! Int64
+                        point.time = data["time"] as! String
+                        point.lat = Double(data["lat"] as! String)!
+                        point.lng = Double(data["lng"] as! String)!
+                        point.status = data["status"] as! String
+                        points.append(point)
+                    }
+                    
+                    handleCallback(route, points, "0")
+                    
+                }
+                else{
+                    handleCallback(nil, nil, "Server issue")
+                }
+                
+            }
+        }
+    }
+    
+    
+    static func getUpdatedRouteDetails(route_id: Int64, latest_index: Int64, handleCallback: @escaping (Route?, [Point]?, String) -> ())
+    {
+        //NSLog(url)
+        let params = [
+            "route_id":String(route_id),
+            "latest_index":String(latest_index)
+        ] as [String : Any]
+        
+        Alamofire.request(SERVER_URL + "updatedroutedetails", method: .post, parameters: params).responseJSON { response in
+            if response.result.isFailure{
+                handleCallback(nil, nil, "Server issue")
+            }
+            else
+            {
+                let json = JSON(response.result.value!)
+                NSLog("\(json)")
+                if(json["result_code"].stringValue == "0"){
+                    let data = json["route"].object as! [String: Any]
+                    let route = Route()
+                    route.idx = data["id"] as! Int64
+                    route.user_id = Int64(data["member_id"] as! String)!
+                    route.name = data["name"] as! String
+                    route.description = data["description"] as! String
+                    route.start_time = data["start_time"] as! String
+                    route.end_time = data["end_time"] as! String
+                    route.duration = Int64(data["duration"] as! String)!
+                    route.distance = Double(data["distance"] as! String)!
+                    route.created_on = data["created_on"] as! String
+                    route.status = data["status"] as! String
+                    
+                    var points = [Point]()
+                    let dataArray = json["points"].arrayObject as! [[String: Any]]
+                    for data in dataArray{
+                        let point = Point()
+                        point.idx = data["id"] as! Int64
+                        point.time = data["time"] as! String
+                        point.lat = Double(data["lat"] as! String)!
+                        point.lng = Double(data["lng"] as! String)!
+                        point.status = data["status"] as! String
+                        points.append(point)
+                    }
+                    
+                    handleCallback(route, points, "0")
+                    
+                }
+                else{
+                    handleCallback(nil, nil, "Server issue")
                 }
                 
             }

@@ -113,9 +113,9 @@ class EditProfileViewController: BaseViewController {
     }
     
     @IBAction func openMap(_ sender: Any) {
-        let vc = self.storyboard?.instantiateViewController(identifier: "PickLocationViewController")
-        vc?.modalPresentationStyle = .fullScreen
-        self.present(vc!, animated: true, completion: nil)
+        let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "PickLocationViewController")
+        vc.modalPresentationStyle = .fullScreen
+        self.present(vc, animated: true, completion: nil)
     }
     
     @IBAction func back(_ sender: Any) {

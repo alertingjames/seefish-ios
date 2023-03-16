@@ -16,8 +16,14 @@ import GSImageViewerController
 import AVFoundation
 import AudioToolbox
 import SDWebImage
+import OneSignal
+import CoreLocation
+import AddressBookUI
+import Network
+import Alamofire
+import SwiftyJSON
 
-class HomeViewController: BaseViewController, UITableViewDataSource, UITableViewDelegate {
+class HomeViewController: BaseViewController, CLLocationManagerDelegate, UNUserNotificationCenterDelegate, UITableViewDataSource, UITableViewDelegate {
     
     @IBOutlet weak var btn_search: UIButton!
     @IBOutlet weak var view_searchbar: UIView!
@@ -30,6 +36,8 @@ class HomeViewController: BaseViewController, UITableViewDataSource, UITableView
     @IBOutlet weak var view_frame: CustomDashView!    
     @IBOutlet weak var img_search: UIImageView!
     @IBOutlet weak var img_story_add: UIImageView!
+    @IBOutlet weak var locationRecordingNotificationBar: UILabel!
+    @IBOutlet weak var routeFollowingsBar: UILabel!
     
     let attrs: [NSAttributedString.Key: Any] = [
         .font: UIFont(name: "Comfortaa-Medium", size: 16.0)!,
@@ -40,14 +48,24 @@ class HomeViewController: BaseViewController, UITableViewDataSource, UITableView
     var posts = [Post]()
     var searchPosts = [Post]()
     var users = [User]()
-    
     var dialog:AlertDialog!
+    
+    var manager = CLLocationManager()
+    var thisUserLocation:CLLocationCoordinate2D? = nil
+    var isLocationRecording:Bool = false
+    var totalDistance:Double = 0.0
+    var duration:Int64 = 0
+    var startedTime:Int64 = 0
+    var endedTime:Int64 = 0
+    var traces = [Point]()
+    var traces1 = [Point]()
+    var traces0 = [Point]()
+    var routeID:Int64 = 0
+    var liveRoute:Route!
+    var userNotificationCenter = UNUserNotificationCenter.current()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        gHomeViewController = self
-        recent = self
         
         img_story_add.isHidden = true
         
@@ -73,18 +91,121 @@ class HomeViewController: BaseViewController, UITableViewDataSource, UITableView
         self.feedList.delegate = self
         self.feedList.dataSource = self
         
-        self.feedList.estimatedRowHeight = 1000.0
+        self.feedList.estimatedRowHeight = 500.0
         self.feedList.rowHeight = UITableView.automaticDimension
         
         UITextView.appearance().linkTextAttributes = [ .foregroundColor: UIColor(rgb: 0x0BFFFF, alpha: 1.0) ]
         
-        if gFCMToken.count > 0{
+        if gFCMToken.count > 0 {
             registerFCMToken(member_id: thisUser.idx, token: gFCMToken)
         }
         
-        let tap = UITapGestureRecognizer(target: self, action: #selector(showMyProfile))
+        var tap = UITapGestureRecognizer(target: self, action: #selector(showMyProfile))
+        img_profile.isUserInteractionEnabled = true
         img_profile.addGestureRecognizer(tap)
         
+        let status: OSPermissionSubscriptionState = OneSignal.getPermissionSubscriptionState()
+        let hasPrompted = status.permissionStatus.hasPrompted
+        print("hasPrompted = \(hasPrompted)")
+        let userStatus = status.permissionStatus.status
+        print("userStatus = \(userStatus)")
+
+        let isSubscribed = status.subscriptionStatus.subscribed
+        print("isSubscribed = \(isSubscribed)")
+        let userSubscriptionSetting = status.subscriptionStatus.userSubscriptionSetting
+        print("userSubscriptionSetting = \(userSubscriptionSetting)")
+        let userID = status.subscriptionStatus.userId // This one
+        print("userID = \(userID)")
+        let pushToken = status.subscriptionStatus.pushToken
+        print("pushToken = \(pushToken)")
+        
+        print("OS playerID /////////// \(userID)")
+        if userID != nil {
+            APIs.registerOSToken(member_id: thisUser.idx, os_playerid: userID!, handleCallback: {
+                result_code  in
+                print("OS userID Resp")
+            })
+        }
+        
+        manager.delegate = self
+        manager.requestAlwaysAuthorization()
+        manager.startUpdatingLocation()
+        manager.startMonitoringSignificantLocationChanges()
+        manager.allowsBackgroundLocationUpdates = true
+        manager.pausesLocationUpdatesAutomatically = false
+        manager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
+        if CLLocationManager.locationServicesEnabled() {
+            self.disableLocationManager()
+        }        
+        totalDistance = 0
+        duration = 0
+        startedTime = 0
+        endedTime = 0
+        
+        userNotificationCenter.delegate = self
+        requestNotificationAuthorization()
+        
+        UserDefaults.standard.set(0, forKey: "last_loaded")
+        locationRecordingNotificationBar.visibility = .gone
+        locationRecordingNotificationBar.addBorder(side: .top, color: .white, width: 1.0)
+        if isLocationRecording { locationRecordingNotificationBar.visibility = .visible }
+        
+        tap = UITapGestureRecognizer(target: self, action: #selector(toLiveRoute))
+        locationRecordingNotificationBar.isUserInteractionEnabled = true
+        locationRecordingNotificationBar.addGestureRecognizer(tap)
+        
+        routeFollowingsBar.visibility = .gone
+        routeFollowingsBar.addBorder(side: .top, color: .white, width: 1.0)
+        
+        tap = UITapGestureRecognizer(target: self, action: #selector(toRouteFollowings))
+        routeFollowingsBar.isUserInteractionEnabled = true
+        routeFollowingsBar.addGestureRecognizer(tap)
+        
+    }
+    
+    @objc func toLiveRoute() {
+        if liveRoute == nil { return }
+        gRoute = liveRoute
+        self.showLoadingView()
+        APIs.getRouteDetails(route_id: gRoute.idx, handleCallback: {
+            route, points, result_code in
+            self.dismissLoadingView()
+            print("Saved traces: \(points!.count)")
+            print(result_code)
+            if result_code == "0"{
+                gPoints = points!
+                self.to(strb: "Main2", vc: "LocationSharingViewController", trans: false, modal: false, anim: true)
+            } else {
+                self.showToast(msg: "SERVER ERROR 500")
+            }
+        })
+    }
+    
+    @objc func toRouteFollowings() {
+        self.to(strb: "Main2", vc: "RouteFollowingsViewController", trans: false, modal: false, anim: true)
+    }
+    
+    
+    func enableLocationManager() {
+        manager.startUpdatingLocation()
+        locationRecordingNotificationBar.visibility = .visible
+    }
+
+    func disableLocationManager() {
+        manager.stopUpdatingLocation()
+        locationRecordingNotificationBar.visibility = .gone
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if locations.count > 0 {
+            let userLocation = locations.last!
+            print("My Location = \(userLocation)")
+            let center = CLLocationCoordinate2D(latitude: (userLocation.coordinate.latitude), longitude: (userLocation.coordinate.longitude))
+            thisUserLocation = center
+            if thisUserLocation != nil && isLocationRecording {
+                handleLocation(loc: thisUserLocation!)
+            }
+        }
     }
     
     @objc func showMyProfile(gesture:UITapGestureRecognizer) {
@@ -93,17 +214,41 @@ class HomeViewController: BaseViewController, UITableViewDataSource, UITableView
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        recent = self
+        gHomeViewController = self
         self.loadPicture(imageView: self.img_profile, url: URL(string: thisUser.photo_url)!)
         self.getPosts(member_id: thisUser.idx)
         self.getMyStories(member_id: thisUser.idx)
         
         gFishViewController.image = nil
+        getLiveRoute()
+        getCheckRouteFollowings(me_id: thisUser.idx)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            let actionID = UserDefaults.standard.integer(forKey: "actionID")
+            if actionID != nil && actionID == 1 {
+                let msg = """
+                        They are sharing their location routes
+                        with you now.
+                        """
+                let alert = UIAlertController(title: "Notice!", message: msg, preferredStyle: .alert)
+                let cancelAction = UIAlertAction(title: "Close", style: .cancel, handler: {
+                    (action : UIAlertAction!) -> Void in })
+                let OKAction = UIAlertAction(title: "Browse", style: .destructive, handler: { alert -> Void in
+                    self.to(strb: "Main2", vc: "RouteFollowingsViewController", trans: false, modal: false, anim: true)
+                })
+                alert.addAction(cancelAction)
+                alert.addAction(OKAction)
+                self.present(alert, animated: true, completion: nil)
+                UILabel.appearance(whenContainedInInstancesOf: [UIAlertController.self]).numberOfLines = 0
+            }
+        }
     }
     
     @IBAction func tap_search(_ sender: Any) {
         if view_searchbar.isHidden{
             view_searchbar.isHidden = false
-            btn_search.setImage(UIImage(named: "ic_cancel"), for: .normal)
+            btn_search.setImage(UIImage(named: "cancelicon"), for: .normal)
             lbl_title.isHidden = true
             edt_search.becomeFirstResponder()
             
@@ -130,6 +275,8 @@ class HomeViewController: BaseViewController, UITableViewDataSource, UITableView
     private func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat{
         return UITableView.automaticDimension
     }
+    
+    var kkk = 0
             
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
                 
@@ -140,16 +287,23 @@ class HomeViewController: BaseViewController, UITableViewDataSource, UITableView
         if posts.indices.contains(index) {
             
             let post = self.posts[index]
+            kkk += 1
             
             if post.picture_url != "" {
-//                loadPicture(imageView: cell.img_post_picture, url: URL(string: post.picture_url)!)
                 cell.postImageHeight.constant = screenWidth
                 cell.view_video.isHidden = true
-                cell.img_post_picture.sd_setImage(with: URL(string: post.picture_url)!, placeholderImage: nil, options: [], completed: { (downloadedImage, error, cache, url) in
-                    print(downloadedImage?.size.width)//prints width of image
-                    print(downloadedImage?.size.height)//prints height of image
-                    cell.postImageHeight.constant = cell.img_post_picture.frame.width * (downloadedImage?.size.height)! / (downloadedImage?.size.width)!
-                })
+                
+                loadPicture(imageView: cell.img_post_picture, url: URL(string: post.picture_url)!)
+//                if kkk > 1 {
+//                    cell.img_post_picture.sd_setImage(with: URL(string: post.picture_url)!, placeholderImage: nil, options: [], completed: { (downloadedImage, error, cache, url) in
+//                        do {
+//                            cell.postImageHeight.constant = try! cell.img_post_picture.frame.size.width * (downloadedImage?.size.height ?? 0) / (downloadedImage?.size.width ?? self.screenWidth)
+//                        }catch {}
+//                    })
+//                } else {
+//                    loadPicture(imageView: cell.img_post_picture, url: URL(string: post.picture_url)!)
+//                }
+                
                 if post.pictures > 1 {
                     cell.lbl_pics.isHidden = false
                     cell.lbl_pics.text = "+" + String(post.pictures - 1)
@@ -158,7 +312,6 @@ class HomeViewController: BaseViewController, UITableViewDataSource, UITableView
                 }
                 
                 cell.img_videomark.isHidden = true
-                
                 cell.img_post_picture.sizeToFit()
             }
             
@@ -178,9 +331,9 @@ class HomeViewController: BaseViewController, UITableViewDataSource, UITableView
                 cell.img_videomark.isHidden = true
             }
             
-            if post.user.photo_url != ""{
+            if post.user.photo_url != "" {
                 loadPicture(imageView: cell.img_poster, url: URL(string: post.user.photo_url)!)
-            }            
+            }
             cell.img_poster.layer.cornerRadius = cell.img_poster.frame.width / 2
                     
             cell.lbl_poster_name.text = post.user.name
@@ -222,6 +375,49 @@ class HomeViewController: BaseViewController, UITableViewDataSource, UITableView
                 cell.commentButton.setImage(UIImage(named: "ic_comment"), for: .normal)
             }
             
+            if post.title == "" { cell.titleBox.visibility = .gone }
+            else {
+                cell.titleBox.visibility = .visible
+                cell.titleBox.text = post.title
+            }
+            if post.category == "" { cell.categoryView.visibility = .gone }
+            else {
+                cell.categoryView.visibility = .visible
+                cell.categoryBox.text = post.category
+                cell.categoryBox.textInsets = UIEdgeInsets(top: 8, left: 25, bottom: 8, right: 25)
+                cell.categoryBox.layer.cornerRadius = 5
+                cell.categoryBox.layer.masksToBounds = true
+            }
+            if post.lat != nil && post.lng != nil {
+                cell.pinButton.visibility = .visible
+                cell.pinButton.tag = index
+                cell.pinButton.addTarget(self, action: #selector(toMap(sender:)), for: .touchUpInside)
+            } else { cell.pinButton.visibility = .gone }
+            if post.rod != "" {
+                cell.rodBox.text = post.rod
+                cell.rodView.visibility = .visible
+                cell.rodAmazonButton.tag = index
+                cell.rodAmazonButton.addTarget(self, action: #selector(toRodAmazon(sender:)), for: .touchUpInside)
+            }else { cell.rodView.visibility = .gone }
+            if post.reel != "" {
+                cell.reelBox.text = post.reel
+                cell.reelView.visibility = .visible
+                cell.reelAmazonButton.tag = index
+                cell.reelAmazonButton.addTarget(self, action: #selector(toReelAmazon(sender:)), for: .touchUpInside)
+            }else { cell.reelView.visibility = .gone }
+            if post.lure != "" {
+                cell.lureBox.text = post.lure
+                cell.lureView.visibility = .visible
+                cell.lureAmazonButton.tag = index
+                cell.lureAmazonButton.addTarget(self, action: #selector(toLureAmazon(sender:)), for: .touchUpInside)
+            }else { cell.lureView.visibility = .gone }
+            if post.line != "" {
+                cell.lineBox.text = post.line
+                cell.lineView.visibility = .visible
+                cell.lineAmazonButton.tag = index
+                cell.lineAmazonButton.addTarget(self, action: #selector(toLineAmazon(sender:)), for: .touchUpInside)
+            }else { cell.lineView.visibility = .gone }
+            
             setRoundShadowView(view: cell.view_content, corner: 5.0)
             
             let tap = UITapGestureRecognizer(target: self, action: #selector(toProfile(gesture:)))
@@ -241,8 +437,15 @@ class HomeViewController: BaseViewController, UITableViewDataSource, UITableView
             
             cell.saveButton.tag = index
             cell.saveButton.addTarget(self, action: #selector(toggleSave), for: .touchUpInside)
-                    
+            
+            cell.titleBox.sizeToFit()
+            cell.categoryView.sizeToFit()
+            cell.categoryBox.sizeToFit()
             cell.txv_desc.sizeToFit()
+            if post.rod != "" { cell.rodView.sizeToFit() }
+            if post.reel != "" { cell.reelView.sizeToFit() }
+            if post.lure != "" { cell.lureView.sizeToFit() }
+            if post.line != "" { cell.lineView.sizeToFit() }
             cell.view_content.sizeToFit()
             cell.view_content.layoutIfNeeded()
                 
@@ -392,7 +595,7 @@ class HomeViewController: BaseViewController, UITableViewDataSource, UITableView
     @objc func toggleSave(sender:UIButton){
         let index = sender.tag
         let post = posts[index]
-        if post.idx > 0 && post.user.idx != thisUser.idx {
+        if post.idx > 0 {
             let cell = sender.superview?.superviewOfClassType(HomeFeedCell.self) as! HomeFeedCell
             savePost(member_id: thisUser.idx, post: post, button:sender)
         }
@@ -432,7 +635,7 @@ class HomeViewController: BaseViewController, UITableViewDataSource, UITableView
     @objc func openCommentBox(sender:UIButton){
         let index = sender.tag
         let post = posts[index]
-        if post.idx > 0 && post.user.idx != thisUser.idx {
+        if post.idx > 0 {
             gPost = post
             let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "CommentViewController")
             self.present(vc, animated: true, completion: nil)
@@ -482,7 +685,7 @@ class HomeViewController: BaseViewController, UITableViewDataSource, UITableView
         APIs.getPosts(member_id: member_id, handleCallback: {
             posts, result_code in
             if self.posts.count == 0 {
-                if self.loadingView.isAnimating { self.dismissLoadingView() }
+                self.dismissLoadingView()
             }
             print(result_code)
             if result_code == "0"{
@@ -582,8 +785,12 @@ class HomeViewController: BaseViewController, UITableViewDataSource, UITableView
                         vc.modalPresentationStyle = .fullScreen
                         self.present(vc, animated: true, completion: nil)
                     }
-                }else if idx == 1{
-                    let alert = UIAlertController(title: "Delete", message: "Are you sure you want to delete this feed?", preferredStyle: .alert)
+                }else if idx == 1 {
+                    let msg = """
+                    Are you sure you want to delete
+                    this feed?
+                    """
+                    let alert = UIAlertController(title: "Delete", message: msg, preferredStyle: .alert)
                     let noAction = UIAlertAction(title: "No", style: .cancel, handler: {
                         (action : UIAlertAction!) -> Void in })
                     let yesAction = UIAlertAction(title: "Yes", style: .destructive, handler: { alert -> Void in
@@ -622,7 +829,11 @@ class HomeViewController: BaseViewController, UITableViewDataSource, UITableView
                     self.present(vc, animated: true, completion: nil)
                 }else if idx == 3{
                     gUser = self.posts[index].user
-                    let alert = UIAlertController(title: "Warning", message: "Are you sure you want to block this user?", preferredStyle: .alert)
+                    let msg = """
+                    Are you sure you want to block
+                    this user?
+                    """
+                    let alert = UIAlertController(title: "Warning", message: msg, preferredStyle: .alert)
                     let noAction = UIAlertAction(title: "No", style: .destructive){(ACTION) in
                         alert.dismiss(animated: true, completion: nil)
                     }
@@ -752,6 +963,402 @@ class HomeViewController: BaseViewController, UITableViewDataSource, UITableView
 //                    self.img_story_add.isHidden = true
 //                }
 
+            }
+        })
+    }
+    
+    @objc func toRodAmazon(sender:UIButton) {
+        let index = sender.tag
+        let goods = posts[index].rod
+        if goods.count > 0 {
+            toAmazon(goods: goods)
+        }
+    }
+    
+    @objc func toReelAmazon(sender:UIButton) {
+        let index = sender.tag
+        let goods = posts[index].reel
+        if goods.count > 0 {
+            toAmazon(goods: goods)
+        }
+    }
+    
+    @objc func toLureAmazon(sender:UIButton) {
+        let index = sender.tag
+        let goods = posts[index].lure
+        if goods.count > 0 {
+            toAmazon(goods: goods)
+        }
+    }
+    
+    @objc func toLineAmazon(sender:UIButton) {
+        let index = sender.tag
+        let goods = posts[index].line
+        if goods.count > 0 {
+            toAmazon(goods: goods)
+        }
+    }
+    
+    func toAmazon(goods:String) {
+        let affiliate_link = "https://www.amazon.com/s?k=" + goods + "&ref=nb_sb_noss_1" + "&tag=tbd0ce-20"
+        let strURL: String = affiliate_link.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+        if let url = URL.init(string: strURL) {
+            UIApplication.shared.open(url)
+        }
+    }
+    
+    @objc func toMap(sender:UIButton) {
+        gPost = self.posts[sender.tag]
+        to(strb: "Main2", vc: "PostMapViewController", trans: false, modal: false, anim: false)
+    }
+    
+    func reset() {
+        startedTime = Date().currentTimeMillis()
+        totalDistance = 0
+        duration = 0
+        traces.removeAll()
+        traces1.removeAll()
+    }
+    
+    var lastDistance:Double = 0
+    var cnt:Int = 0
+    var isUploading:Bool = false
+    
+    func handleLocation(loc:CLLocationCoordinate2D) {
+        if isLocationRecording {
+            let currentTime = Date().currentTimeMillis()
+            
+            if traces.count == 0 {
+                let point = Point()
+                point.lat = loc.latitude
+                point.lng = loc.longitude
+                point.time = String(currentTime)
+                traces.append(point)
+                traces1.append(point)
+                return
+            }
+            
+            var point1:CLLocationCoordinate2D!
+            var point2:CLLocationCoordinate2D!
+            
+            let lastRpoint = traces.last
+            
+            if traces.count >= 2 {
+                let lastRpoint0 = traces[traces.count - 2]
+                let dist0 = getDistance(from: CLLocationCoordinate2D(latitude: lastRpoint0.lat, longitude: lastRpoint0.lng), to: CLLocationCoordinate2D(latitude: lastRpoint!.lat, longitude: lastRpoint!.lng))
+                let dist1 = getDistance(from: CLLocationCoordinate2D(latitude: lastRpoint!.lat, longitude: lastRpoint!.lng), to: CLLocationCoordinate2D(latitude: loc.latitude, longitude: loc.longitude))
+                let dist2 = getDistance(from: CLLocationCoordinate2D(latitude: lastRpoint0.lat, longitude: lastRpoint0.lng), to: CLLocationCoordinate2D(latitude: loc.latitude, longitude: loc.longitude))
+                if dist2 < dist0 || dist2 < dist1 {
+                    traces.remove(at: traces.firstIndex(where: {$0.idx == lastRpoint!.idx})!)
+                    totalDistance = totalDistance - lastDistance * 0.001
+                    point1 = CLLocationCoordinate2D(latitude: lastRpoint0.lat, longitude: lastRpoint0.lng)
+                    point2 = CLLocationCoordinate2D(latitude: loc.latitude, longitude: loc.longitude)
+
+                }else {
+                    point1 = CLLocationCoordinate2D(latitude: lastRpoint!.lat, longitude: lastRpoint!.lng)
+                    point2 = CLLocationCoordinate2D(latitude: loc.latitude, longitude: loc.longitude)
+                }
+            }else {
+                point1 = CLLocationCoordinate2D(latitude: lastRpoint!.lat, longitude: lastRpoint!.lng)
+                point2 = CLLocationCoordinate2D(latitude: loc.latitude, longitude: loc.longitude)
+            }
+            
+            ////////////////////     Meter   ///////////////////////
+            lastDistance = getDistance(from: point1, to: point2)
+            
+            totalDistance = totalDistance + lastDistance * 0.001
+            duration = currentTime - startedTime
+            let (h,m,s) = secondsToHoursMinutesSeconds(seconds: Int(duration/1000))
+            
+            let point = Point()
+            point.lat = loc.latitude
+            point.lng = loc.longitude
+            point.time = String(currentTime)
+            
+            traces.append(point)
+            traces1.append(point)
+            
+            endedTime = Date().currentTimeMillis()
+            
+            if gLocationSharingViewController != nil {
+                gLocationSharingViewController.updateRealTimeRoute()
+            }
+            
+            if h >= 8 && m >= 1 {
+                self.finalizeReport(is8hours: true)
+                return
+            }
+            
+            if self.isUploading {
+                self.traces0.append(point)
+                return
+            }
+            
+            let last_loaded = UserDefaults.standard.object(forKey: "last_loaded") as! Int64
+            let diff = currentTime - last_loaded
+            if diff > 10000 {
+                if isConnectedToNetwork {
+                    self.isUploading = true
+                    self.uploadRoutePoints(end: false)
+                } else {
+                    self.isUploading = false
+                    if self.traces0.count > 0 {
+                        self.traces0.removeAll()
+                    }
+                }
+            }
+        }
+    }
+    
+    func getDistance(from: CLLocationCoordinate2D, to: CLLocationCoordinate2D) -> Double {
+        let fromLoc = CLLocation(latitude: from.latitude, longitude: from.longitude)
+        let toLoc = CLLocation(latitude: to.latitude, longitude: to.longitude)
+        let distanceInMeters = fromLoc.distance(from: toLoc)
+        return distanceInMeters
+    }
+    
+    func secondsToHoursMinutesSeconds (seconds : Int) -> (Int, Int, Int) {
+        return (seconds / 3600, (seconds % 3600) / 60, (seconds % 3600) % 60)
+    }
+    
+    var IS8HOURS:Bool = false
+    
+    func finalizeReport(is8hours:Bool) {
+        isLocationRecording = false
+        disableLocationManager()
+        
+        IS8HOURS = is8hours
+        
+        if is8hours {
+            self.sendNotification(title: "SeeFish", body: "Since the log has exceeded 8 hours, it will be automatically stopped.")
+            if !isConnectedToNetwork {
+                gHomeViewController.traces1.removeAll()
+                gHomeViewController.traces.removeAll()
+                return
+            }
+            self.endedTime = Date().currentTimeMillis()
+            self.uploadStartOrEndRoute(route_id: self.routeID, member_id: thisUser.idx, name: "", description: "", start_time: String(self.startedTime), end_time: String(self.endedTime), duration: self.duration, distance: self.totalDistance, status: "2", lat:String(thisUserLocation!.latitude), lng:String(thisUserLocation!.longitude), tm: String(self.endedTime))
+        }else {
+            if isConnectedToNetwork {
+                if traces1.count > 0 {
+                    uploadRoutePoints(end: true)
+                }
+            }else {
+                gHomeViewController.traces1.removeAll()
+                gHomeViewController.traces.removeAll()
+            }
+        }
+    }
+    
+    //////// End route
+    
+    func endRoute(desc:String) {
+        self.endedTime = Date().currentTimeMillis()
+        self.uploadStartOrEndRoute(route_id: self.routeID, member_id: thisUser.idx, name: "", description: desc, start_time: String(self.startedTime), end_time: String(self.endedTime), duration: self.duration, distance: self.totalDistance, status: "2", lat:String(thisUserLocation!.latitude), lng:String(thisUserLocation!.longitude), tm: String(self.endedTime))
+    }
+    
+    func uploadStartOrEndRoute(route_id:Int64, member_id: Int64, name:String, description:String, start_time:String, end_time:String, duration:Int64, distance:Double, status:String, lat:String, lng:String, tm:String) {
+        if Int(status) == 0 || Int(status) == 2 { self.showLoadingView()}
+        APIs.uploadStartOrEndRoute(route_id:route_id, member_id: member_id, name:name, description:description, start_time:start_time, end_time:end_time, duration:duration, distance:distance, status:status, lat:lat, lng:lng, tm:tm, handleCallback: { [self]
+            route_id, result_code in
+            if Int(status) == 0 || Int(status) == 2 { self.dismissLoadingView() }
+            print(result_code)
+            if result_code == "0"{
+                routeID = Int64(route_id)!
+                if Int(status) == 0 {
+                    isLocationRecording = true
+                    enableLocationManager()
+                }else {
+                    if Int(status) == 2 {
+                        print("ROUTE ENDED!")
+                        isLocationRecording = false
+                        disableLocationManager()
+                        traces1.removeAll()
+                        traces.removeAll()
+                    }
+                }
+            } else {
+                print("Result: \(result_code)")
+            }
+            
+        })
+    }
+    
+    func uploadRoutePoints(end:Bool) {
+
+        let jsonFile = createPointsJsonStr().data(using: .utf8)!
+
+        let params = [
+            "route_id":String(routeID),
+            "member_id":String(thisUser.idx),
+            "name":"",
+            "description":"",
+            "start_time": String(self.startedTime),
+            "end_time": String(self.endedTime),
+            "duration": String(self.duration),
+            "distance": String(self.totalDistance),
+            "status": end ? "1" : "0",
+        ] as [String : Any]
+
+        let fileDic = ["jsonfile" : jsonFile]
+        // Here you can pass multiple image in array i am passing just one
+        let fileArray = NSMutableArray(array: [fileDic as NSDictionary])
+
+//        self.showLoadingView()
+        APIs().uploadJsonFile(withUrl: SERVER_URL + "ETMupdate", withParam: params, withFiles: fileArray) { (isSuccess, response) in
+            // Your Will Get Response here
+//            self.dismissLoadingView()
+            print("XXXXXXXXXX JSON: \(response)")
+            self.isUploading = false
+            if isSuccess == true {
+                let result_code = response["result_code"] as Any
+                if result_code as! String == "0" {
+                    self.traces1.removeAll()
+                    let curtime:Int64 = Date().currentTimeMillis()
+                    UserDefaults.standard.set(curtime, forKey: "last_loaded")
+                    if !end {
+                        if self.traces0.count > 0 {
+                            for tr in self.traces0 {
+                                self.traces1.append(tr)
+                            }
+                        }
+                    }
+                    if end || self.IS8HOURS {
+                        self.traces.removeAll()
+                    }
+                }
+                self.traces0.removeAll()
+            }else{
+                print("Error!")
+                self.isUploading = false
+                self.traces0.removeAll()
+            }
+        }
+    }
+    
+    
+    func createPointsJsonStr() -> String {
+        var jsonStr = ""
+        var jsonArray = [Any]()
+        var i = 0
+        for rpoint in traces1 {
+            i += 1
+            let jsonObject: [String: String] = [
+                "id": String(i),
+                "route_id": String(routeID),
+                "lat": String(rpoint.lat),
+                "lng": String(rpoint.lng),
+                "time": String(rpoint.time),
+                "status": "",
+            ]
+            jsonArray.append(jsonObject)
+        }
+        
+        let jsonItemsObj:[String: Any] = [
+            "points":jsonArray
+        ]
+        
+        jsonStr = stringify(json: jsonItemsObj)
+        return jsonStr
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        completionHandler()
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.alert, .badge, .sound])
+    }
+    
+    func requestNotificationAuthorization() {
+        let authOptions = UNAuthorizationOptions.init(arrayLiteral: .alert, .badge, .sound)
+        self.userNotificationCenter.requestAuthorization(options: authOptions) { (success, error) in
+            if let error = error {
+                print("Error: ", error)
+            }
+        }
+    }
+    
+    let notification_identifier = "SeeFish Notification"
+
+    func sendNotification(title:String, body:String) {
+        let notificationContent = UNMutableNotificationContent()
+        notificationContent.title = title
+        notificationContent.body = body
+        notificationContent.badge = NSNumber(value: 0)
+        
+        if let url = Bundle.main.url(forResource: "icon",
+                                    withExtension: "png") {
+            if let attachment = try? UNNotificationAttachment(identifier: notification_identifier,
+                                                            url: url,
+                                                            options: nil) {
+                notificationContent.attachments = [attachment]
+            }
+        }
+        let request = UNNotificationRequest(identifier: notification_identifier,
+                                            content: notificationContent,
+                                            trigger: nil)
+        
+        userNotificationCenter.add(request) { (error) in
+            if let error = error {
+                print("Notification Error: ", error)
+            }
+        }
+    }
+    
+    func removeNotification(){
+        userNotificationCenter.removePendingNotificationRequests(withIdentifiers: [notification_identifier])
+        userNotificationCenter.removeDeliveredNotifications(withIdentifiers: [notification_identifier])
+    }
+    
+    
+    func getLiveRoute() {
+        let params = [
+            "member_id": String(thisUser.idx),
+        ] as [String : Any]
+        Alamofire.request(SERVER_URL + "getmyroutes", method: .post, parameters: params).responseJSON { response in
+            if response.result.isFailure{
+//                self.showAlertDialog(title: "Notice", message: "SERVER ERROR 500")
+            } else {
+                let json = JSON(response.result.value!)
+                let result_code = json["result_code"].stringValue
+                if(result_code == "0"){
+                    let dataArray = json["data"].arrayObject as! [[String: Any]]
+                    for data in dataArray {
+                        let route = Route()
+                        route.idx = data["id"] as! Int64
+                        route.user_id = Int64(data["member_id"] as! String)!
+                        route.name = data["name"] as! String
+                        route.description = data["description"] as! String
+                        route.start_time = data["start_time"] as! String
+                        route.end_time = data["end_time"] as! String
+                        route.duration = Int64(data["duration"] as! String)!
+                        route.distance = Double(data["distance"] as! String)!
+                        route.created_on = data["created_on"] as! String
+                        route.status = data["status"] as! String
+                        if self.routeID == route.idx {
+                            self.liveRoute = route
+                            break
+                        }
+                    }
+                } else {
+//                    self.showAlertDialog(title: "Notice", message: "SERVER ERROR 500")
+                }
+                
+            }
+        }
+    }
+    
+    func getCheckRouteFollowings(me_id:Int64){
+        APIs.getRouteFollowings(me_id:me_id, handleCallback: {
+            users, result_code in
+            print(result_code)
+            if result_code == "0" {
+                if users!.isEmpty {
+                    self.routeFollowingsBar.visibility = .gone
+                }else {
+                    self.routeFollowingsBar.visibility = .visible
+                }
             }
         })
     }

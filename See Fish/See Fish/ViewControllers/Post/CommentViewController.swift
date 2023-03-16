@@ -228,17 +228,20 @@ class CommentViewController: BaseViewController, UITableViewDataSource, UITableV
                     self.commentBox.checkPlaceholder()
                     self.commentBox.becomeFirstResponder()
                 }else if idx == 1{
-                    let alert = UIAlertController(title: "Delete", message: "Are you sure you want to delete this comment?", preferredStyle: .alert)
+                    let msg = """
+                    Are you sure you want to delete
+                    this comment?
+                    """
+                    let alert = UIAlertController(title: "Delete", message: msg, preferredStyle: .alert)
                     let noAction = UIAlertAction(title: "No", style: .cancel, handler: {
                         (action : UIAlertAction!) -> Void in })
                     let yesAction = UIAlertAction(title: "Yes", style: .destructive, handler: { alert -> Void in
                         self.deleteComment(comment_id: self.comments[index].idx)
                     })
-                    
                     alert.addAction(yesAction)
                     alert.addAction(noAction)
-                    
                     self.present(alert, animated: true, completion: nil)
+                    UILabel.appearance(whenContainedInInstancesOf: [UIAlertController.self]).numberOfLines = 0
                 }
             }
         }else{
@@ -258,12 +261,19 @@ class CommentViewController: BaseViewController, UITableViewDataSource, UITableV
                         let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "SendMessageViewController")
                         self.present(vc, animated: true, completion: nil)
                     }else {
-                        showAlertDialog(title: "Note!", message: "You have already blocked this user.")
+                        let msg = """
+                        You have already blocked this user.
+                        """
+                        showAlertDialog(title: "Note!", message: msg)
                     }
                 }else if idx == 1 {
                     gUser = self.comments[index].user
                     if gUser.status != "blocked" {
-                        let alert = UIAlertController(title: "Warning", message: "Are you sure you want to block this user?", preferredStyle: .alert)
+                        let msg = """
+                        Are you sure you want to block
+                        this user?
+                        """
+                        let alert = UIAlertController(title: "Warning", message: msg, preferredStyle: .alert)
                         let noAction = UIAlertAction(title: "No", style: .destructive){(ACTION) in
                             alert.dismiss(animated: true, completion: nil)
                         }
@@ -274,7 +284,11 @@ class CommentViewController: BaseViewController, UITableViewDataSource, UITableV
                         alert.addAction(yesAction)
                         self.present(alert, animated:true, completion:nil);
                     }else {
-                        let alert = UIAlertController(title: "Warning", message: "Are you sure you want to unblock this user?", preferredStyle: .alert)
+                        let msg = """
+                        Are you sure you want to unblock
+                        this user?
+                        """
+                        let alert = UIAlertController(title: "Warning", message: msg, preferredStyle: .alert)
                         let noAction = UIAlertAction(title: "No", style: .destructive){(ACTION) in
                             alert.dismiss(animated: true, completion: nil)
                         }

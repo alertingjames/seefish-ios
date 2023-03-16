@@ -27,6 +27,22 @@ class HomeFeedCell: UITableViewCell {
     @IBOutlet weak var saveButton: UIButton!
     @IBOutlet weak var img_videomark: UIImageView!
     @IBOutlet weak var view_info: UIView!
+    @IBOutlet weak var titleBox: UILabel!
+    @IBOutlet weak var categoryView: UIView!
+    @IBOutlet weak var categoryBox: EdgeInsetLabel!
+    @IBOutlet weak var pinButton: UIButton!
+    @IBOutlet weak var rodView: UIView!
+    @IBOutlet weak var rodBox: UILabel!
+    @IBOutlet weak var rodAmazonButton: UIButton!
+    @IBOutlet weak var reelView: UIView!
+    @IBOutlet weak var reelBox: UILabel!
+    @IBOutlet weak var reelAmazonButton: UIButton!
+    @IBOutlet weak var lureView: UIView!
+    @IBOutlet weak var lureBox: UILabel!
+    @IBOutlet weak var lureAmazonButton: UIButton!
+    @IBOutlet weak var lineView: UIView!
+    @IBOutlet weak var lineBox: UILabel!
+    @IBOutlet weak var lineAmazonButton: UIButton!
     
     @IBOutlet weak var postImageHeight: NSLayoutConstraint!
     @IBOutlet weak var postDescHeight: UITextView!

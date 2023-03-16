@@ -13,8 +13,9 @@ import AVFoundation
 import YPImagePicker
 import FlexibleAVCapture
 import SwiftVideoBackground
+import CoreLocation
 
-class VideoSubmitViewController: BaseViewController, FlexibleAVCaptureDelegate, CachingPlayerItemDelegate {
+class VideoSubmitViewController: BaseViewController, CLLocationManagerDelegate, FlexibleAVCaptureDelegate, CachingPlayerItemDelegate {
     
     @IBOutlet weak var img_thumbnail: UIImageView!
     @IBOutlet weak var txv_desc: UITextView!
@@ -28,6 +29,18 @@ class VideoSubmitViewController: BaseViewController, FlexibleAVCaptureDelegate, 
     @IBOutlet weak var view_submit: UIView!
     @IBOutlet weak var view_add: UIView!
     @IBOutlet weak var bgImage: UIImageView!
+    
+    @IBOutlet weak var titleBox: UITextField!
+    @IBOutlet weak var categoryView: UIView!
+    @IBOutlet weak var categoryBox: UITextField!
+    @IBOutlet weak var rodBox: UITextField!
+    @IBOutlet weak var reelBox: UITextField!
+    @IBOutlet weak var lureBox: UITextField!
+    @IBOutlet weak var lineBox: UITextField!
+    @IBOutlet weak var locationView: UIView!
+    @IBOutlet weak var locationSharingSW: UISwitch!
+    @IBOutlet weak var submitButton: UIButton!
+    
     @IBOutlet weak var videoFrameHeight: NSLayoutConstraint!
     @IBOutlet weak var videoView: UIView!
     var videoButtons:VideoOptionsViewController!
@@ -39,11 +52,12 @@ class VideoSubmitViewController: BaseViewController, FlexibleAVCaptureDelegate, 
     let videoBackground = VideoBackground()
     
     var player:AVPlayer!
+    
+    var manager = CLLocationManager()
+    var thisUserLocation:CLLocationCoordinate2D!
         
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        gVideoSubmitViewController = self
         
         videoButtons = (self.storyboard!.instantiateViewController(withIdentifier: "VideoOptionsViewController") as! VideoOptionsViewController)
         videoButtons.view.frame = CGRect(x: 0, y: 0, width: self.screenWidth, height: self.screenHeight)
@@ -55,9 +69,44 @@ class VideoSubmitViewController: BaseViewController, FlexibleAVCaptureDelegate, 
         
         txv_desc.delegate = self
         txv_desc.setPlaceholder(string: "Write something here...")
-        txv_desc.textContainerInset = UIEdgeInsets(top: txv_desc.textContainerInset.top, left: 8, bottom: txv_desc.textContainerInset.bottom, right: txv_desc.textContainerInset.right)
+        txv_desc.textContainerInset = UIEdgeInsets(top: txv_desc.textContainerInset.top, left: 10, bottom: txv_desc.textContainerInset.bottom, right: txv_desc.textContainerInset.right)
         
         videoFrameHeight.constant = screenHeight * 2/3
+        
+        submitButton.layer.cornerRadius = submitButton.frame.height / 2
+        titleBox.addBorder(side: .bottom, color: UIColor(rgb: 0x000000, alpha: 0.7), width: 1)
+        categoryBox.addBorder(side: .bottom, color: UIColor(rgb: 0x000000, alpha: 0.7), width: 1)
+        txv_desc.addBorder(side: .bottom, color: UIColor(rgb: 0x000000, alpha: 0.7), width: 1)
+        rodBox.addBorder(side: .bottom, color: UIColor(rgb: 0x000000, alpha: 0.7), width: 1)
+        reelBox.addBorder(side: .bottom, color: UIColor(rgb: 0x000000, alpha: 0.7), width: 1)
+        lureBox.addBorder(side: .bottom, color: UIColor(rgb: 0x000000, alpha: 0.7), width: 1)
+        lineBox.addBorder(side: .bottom, color: UIColor(rgb: 0x000000, alpha: 0.7), width: 1)
+        
+        if CLLocationManager.locationServicesEnabled() {
+            switch CLLocationManager.authorizationStatus() {
+                case .notDetermined, .restricted, .denied:
+                    print("No access")
+                locationView.visibility = .gone
+                locationSharingSW.isOn = false
+                case .authorizedAlways, .authorizedWhenInUse:
+                    print("Access")
+                @unknown default:
+                    break
+            }
+        } else {
+            print("Location services are not enabled")
+            locationView.visibility = .gone
+            locationSharingSW.isOn = false
+        }
+        
+        manager.delegate = self
+        manager.requestWhenInUseAuthorization()
+        manager.desiredAccuracy = kCLLocationAccuracyBest
+        // locationManager.allowDeferredLocationUpdates(untilTraveled: 0, timeout: 0)
+        if CLLocationManager.locationServicesEnabled() {
+            manager.startUpdatingLocation()
+            // manager.startUpdatingHeading()
+        }
         
         self.flexibleAVCaptureVC.delegate = self
         self.flexibleAVCaptureVC.maximumRecordDuration = CMTime(seconds: 180.0, preferredTimescale: .max)
@@ -70,6 +119,12 @@ class VideoSubmitViewController: BaseViewController, FlexibleAVCaptureDelegate, 
         
         if gPost.idx > 0 && gPost.video_url.count > 0 && gPost.picture_url.count > 0 {
             loadPicture(imageView: img_thumbnail, url: URL(string: gPost.picture_url)!)
+            titleBox.text = gPost.title
+            categoryBox.text = gPost.category
+            rodBox.text = gPost.rod
+            reelBox.text = gPost.reel
+            lureBox.text = gPost.lure
+            lineBox.text = gPost.line
             txv_desc.text = gPost.content
             txv_desc.checkPlaceholder()
             lbl_desc.text = "Edit description"
@@ -79,6 +134,20 @@ class VideoSubmitViewController: BaseViewController, FlexibleAVCaptureDelegate, 
             self.addVideoBtn.setImage(UIImage(named: "pen"), for: .normal)
         }
         
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        recent = self
+        gVideoSubmitViewController = self
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if locations.count > 0{
+            let userLocation = locations.last!
+            print("locations = \(locations)")
+            let center = CLLocationCoordinate2D(latitude: (userLocation.coordinate.latitude), longitude: (userLocation.coordinate.longitude))
+            thisUserLocation = center
+        }
     }
     
     var isPlaying = false
@@ -123,9 +192,9 @@ class VideoSubmitViewController: BaseViewController, FlexibleAVCaptureDelegate, 
         textView.checkPlaceholder()
     }
     
-    override var preferredStatusBarStyle : UIStatusBarStyle {
-        return .lightContent
-    }
+//    override var preferredStatusBarStyle : UIStatusBarStyle {
+//        return .lightContent
+//    }
     
     override var prefersStatusBarHidden: Bool{
         return true
@@ -141,17 +210,21 @@ class VideoSubmitViewController: BaseViewController, FlexibleAVCaptureDelegate, 
                 showToast(msg: "Please change something for this feed.")
                 return
             }
+            let lat = locationSharingSW.isOn && thisUserLocation != nil ? String(thisUserLocation.latitude) : (gPost.lat != nil ? String(gPost.lat) : "")
+            let lng = locationSharingSW.isOn && thisUserLocation != nil ? String(thisUserLocation.longitude) : (gPost.lng != nil ? String(gPost.lng) : "")
             if videoURL != nil {
-                postVideo(post_id: gPost.idx, member_id: thisUser.idx, content: txv_desc.text, video_url: self.videoURL, thumbnail: thumbnailFile!)
+                postVideo(post_id: gPost.idx, member_id: thisUser.idx, title: titleBox.text!, category: categoryBox.text!, content: txv_desc.text, rod: rodBox.text!, reel: reelBox.text!, lure: lureBox.text!, line: lineBox.text!, lat: lat, lng: lng, video_url: self.videoURL, thumbnail: thumbnailFile!)
             }else {
-                updatePostWithoutVideo(post_id: gPost.idx, member_id: thisUser.idx, content: txv_desc.text)
+                updatePostWithoutVideo(post_id: gPost.idx, member_id: thisUser.idx, title: titleBox.text!, category: categoryBox.text!, content: txv_desc.text, rod: rodBox.text!, reel: reelBox.text!, lure: lureBox.text!, line: lineBox.text!, lat: lat, lng: lng)
             }
         }else {
             if self.videoURL == nil {
                 showToast(msg: "Please load a video.")
                 return
             }
-            postVideo(post_id: 0, member_id: thisUser.idx, content: txv_desc.text, video_url: self.videoURL, thumbnail: thumbnailFile!)
+            let lat = locationSharingSW.isOn && thisUserLocation != nil ? String(thisUserLocation.latitude) : ""
+            let lng = locationSharingSW.isOn && thisUserLocation != nil ? String(thisUserLocation.longitude) : ""
+            postVideo(post_id: 0, member_id: thisUser.idx, title: titleBox.text!, category:categoryBox.text!, content: txv_desc.text, rod:rodBox.text!, reel:reelBox.text!, lure:lureBox.text!, line:lineBox.text!, lat: lat, lng: lng, video_url: self.videoURL, thumbnail: thumbnailFile!)
         }
     }
     
@@ -202,7 +275,6 @@ class VideoSubmitViewController: BaseViewController, FlexibleAVCaptureDelegate, 
         config.video.minimumTimeLimit = 3.0
         config.video.trimmerMaxDuration = 180.0
         config.video.trimmerMinDuration = 3.0
-        config.hidesStatusBar = false
         let picker = YPImagePicker(configuration: config)
         picker.didFinishPicking { [self, unowned picker] items, _ in
             if let video = items.singleVideo {
@@ -234,9 +306,9 @@ class VideoSubmitViewController: BaseViewController, FlexibleAVCaptureDelegate, 
         }
     }
     
-    func postVideo(post_id: Int64, member_id:Int64, content:String, video_url:URL, thumbnail: Data){
+    func postVideo(post_id: Int64, member_id:Int64, title:String, category:String, content:String, rod:String, reel:String, lure:String, line:String, lat:String, lng:String, video_url:URL, thumbnail: Data){
         self.showLoadingView()
-        APIs.postVideo(post_id: post_id, member_id: member_id, content: content, video_url: video_url, thumbnail: thumbnail, handleCallback: {
+        APIs.postVideo(post_id: post_id, member_id: member_id, title:title, category:category, content:content, rod:rod, reel:reel, lure:lure, line:line, lat:lat, lng:lng, video_url: video_url, thumbnail: thumbnail, handleCallback: {
             result_code in
             self.dismissLoadingView()
             print(result_code)
@@ -252,9 +324,9 @@ class VideoSubmitViewController: BaseViewController, FlexibleAVCaptureDelegate, 
         
     }
     
-    func updatePostWithoutVideo(post_id: Int64, member_id:Int64, content:String){
+    func updatePostWithoutVideo(post_id: Int64, member_id:Int64, title:String, category:String, content:String, rod:String, reel:String, lure:String, line:String, lat:String, lng:String){
         self.showLoadingView()
-        APIs.editPostWithoutVideo(member_id: member_id, post_id: post_id, content: content, handleCallback: {
+        APIs.editPostWithoutVideo(member_id: member_id, post_id: post_id, title: title, category: category, content: content, rod: rod, reel: reel, lure: lure, line: line, lat: lat, lng: lng, handleCallback: {
             result_code in
             self.dismissLoadingView()
             print(result_code)
@@ -268,5 +340,17 @@ class VideoSubmitViewController: BaseViewController, FlexibleAVCaptureDelegate, 
         })
         
     }
+    
+    @IBAction func openCategoryMenu(_ sender: Any) {
+        to(strb: "Main2", vc: "CategoryListViewController", trans: false, modal: false, anim: true)
+    }
+    
+    @IBAction func changeIfLocationShare(_ sender: Any) {
+        
+    }
+    
+    
+    
+    
     
 }

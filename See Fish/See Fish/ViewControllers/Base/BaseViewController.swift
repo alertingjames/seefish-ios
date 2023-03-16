@@ -8,15 +8,17 @@
 import UIKit
 import Toast_Swift
 import Kingfisher
-import FirebaseCore
-import FirebaseDatabase
 import AVFoundation
+import SwiftGifOrigin
 
 class BaseViewController: UIViewController, UITextFieldDelegate, UITextViewDelegate {
     
-    var loadingView:UIActivityIndicatorView = UIActivityIndicatorView()
     let screenWidth = UIScreen.main.bounds.width
     let screenHeight = UIScreen.main.bounds.height
+    var topSafeAreaHeight: CGFloat = 0
+    var bottomSafeAreaHeight: CGFloat = 0
+    
+    var loadingFrame:LoadingDialog!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,6 +27,18 @@ class BaseViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         if #available(iOS 13.0, *) {
             // prefer a light interface style with this:
             overrideUserInterfaceStyle = .light
+        }
+        
+        if #available(iOS 13.0, *) {
+            // prefer a light interface style with this:
+            overrideUserInterfaceStyle = .light
+        }
+        
+        if #available(iOS 11.0, *) {
+            let window = UIApplication.shared.windows[0]
+            let safeFrame = window.safeAreaLayoutGuide.layoutFrame
+            topSafeAreaHeight = safeFrame.minY
+            bottomSafeAreaHeight = window.frame.maxY - safeFrame.maxY
         }
         
     }
@@ -105,25 +119,34 @@ class BaseViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
 //    }
     
     func showLoadingView(){
-        loadingView.center = self.view.center
-        loadingView.hidesWhenStopped = true
-        loadingView.style = UIActivityIndicatorView.Style.large
-        loadingView.color = .red
-        view.addSubview(loadingView)
-        loadingView.startAnimating()
+        loadingFrame = UIStoryboard(name: "Main2", bundle: nil).instantiateViewController(withIdentifier: "LoadingDialog") as! LoadingDialog
+        loadingFrame.view.frame = CGRect(x: 0, y: 0, width: screenWidth, height: screenHeight)
+        self.addChild(loadingFrame)
+        self.view.addSubview(loadingFrame.view)
     }
-    
+        
     func dismissLoadingView(){
-        loadingView.stopAnimating()
+        if loadingFrame != nil {
+            loadingFrame.view.removeFromSuperview()
+            loadingFrame.removeFromParent()
+        }
     }
     
-    func showLoadingView(color:UIColor){
-        loadingView.center = self.view.center
-        loadingView.hidesWhenStopped = true
-        loadingView.style = UIActivityIndicatorView.Style.large
-        loadingView.color = color
-        view.addSubview(loadingView)
-        loadingView.startAnimating()
+    func to(strb:String, vc:String, trans:Bool, modal:Bool, anim:Bool) {
+        let vc = UIStoryboard(name: strb, bundle: nil).instantiateViewController(withIdentifier: vc)
+        if !modal { vc.modalPresentationStyle = .fullScreen }
+        if trans { self.transitionVc(vc: vc, duration: 0.3, type: .fromRight) }
+        else { self.present(vc, animated: anim ? true : false, completion: nil) }
+    }
+    
+    func to1(strb:String, vc:String, trans:Bool, modal:Bool, anim:Bool) {
+        let vc = UIStoryboard(name: strb, bundle: nil).instantiateViewController(withIdentifier: vc)
+        if !modal { vc.modalPresentationStyle = .fullScreen }
+        let presentingVC = self.presentingViewController
+        self.dismiss(animated: false, completion: { () -> Void   in
+            if trans { presentingVC!.transitionVc(vc: vc, duration: 0.3, type: .fromRight) }
+            else { presentingVC!.present(vc, animated: anim ? true : false, completion: nil) }
+        })
     }
     
     func isValidEmail(email:String) -> Bool {
@@ -166,9 +189,58 @@ class BaseViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         return dateString
     }
     
+    func dateIsToday(datestr:String) -> Bool {
+        if datestr.count == 0 { return false }
+        print("date: \(datestr) | today: \(getTodayStr())")
+        let fyear = Int(datestr.split(separator: "-")[0])
+        let fmonth = Int(datestr.split(separator: "-")[1])
+        let fday = Int(datestr.split(separator: "-")[2])
+        let tyear = Int(getTodayStr().split(separator: "-")[0])
+        let tmonth = Int(getTodayStr().split(separator: "-")[1])
+        let tday = Int(getTodayStr().split(separator: "-")[2])
+        return fyear == tyear && fmonth == tmonth && fday == tday
+    }
+    
+    func getTodayStr() -> String {
+        let date = Date()
+        let formate = date.getFormattedDate(format: "yyyy-MM-dd")
+        return formate
+    }
+    
+    func dateFrom(date_str: String) -> Date? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd-HH-mm-ss"
+        if let date = dateFormatter.date(from: date_str) {
+            return date
+        }
+        return nil
+    }
+    
+    func dateFrom2(date_str: String) -> Date? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        if let date = dateFormatter.date(from: date_str) {
+            return date
+        }
+        return nil
+    }
+    
+    func getFormattedDate(date: Date, format: String) -> String {
+        let dateformat = DateFormatter()
+        dateformat.dateFormat = format
+        return dateformat.string(from: date)
+    }
+    
     func convertBase64ToImage(imageString: String) -> UIImage {
         let imageData = Data(base64Encoded: imageString, options: Data.Base64DecodingOptions.ignoreUnknownCharacters)!
         return UIImage(data: imageData)!
+    }
+    
+    func getDurationFromMilliseconds(ms: Int64) -> String {
+        let seconds = Int((ms / 1000) % 60)
+        let minutes = Int((ms / (1000 * 60)) % 60)
+        let hours = Int((ms / (1000 * 60*60)) % 24)
+        return String(format: "%02dH %02dM %02dS", hours, minutes, seconds)
     }
     
     func setIconTintColor(imageView:UIImageView, color:UIColor){
@@ -188,18 +260,48 @@ class BaseViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
     
     func logout() {
         
+        let alert = UIAlertController(title: "Warning!", message: "Are you sure log out?", preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: {
+            (action : UIAlertAction!) -> Void in })
+        let regAction = UIAlertAction(title: "Yes", style: .destructive, handler: { alert -> Void in
+            self.exitApp()
+        })
+        alert.addAction(regAction)
+        alert.addAction(cancelAction)
+        self.present(alert, animated: true, completion: nil)
+        UILabel.appearance(whenContainedInInstancesOf: [UIAlertController.self]).numberOfLines = 0
+        
+    }
+    
+    
+    func exitApp() {
         UserDefaults.standard.set("", forKey: "email")
         UserDefaults.standard.set("", forKey: "password")
-
         thisUser.idx = 0
-        
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             UIApplication.shared.perform(#selector(NSXPCConnection.suspend))
              DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
               exit(0)
              }
         }
+    }
+    
+    
+    func stringify(json: Any, prettyPrinted: Bool = false) -> String {
+        var options: JSONSerialization.WritingOptions = []
+        if prettyPrinted {
+            options = JSONSerialization.WritingOptions.prettyPrinted
+        }
         
+        do {
+            let data = try JSONSerialization.data(withJSONObject: json, options: options)
+            if let string = String(data: data, encoding: String.Encoding.utf8) {
+                return string
+            }
+        } catch {
+            print(error)
+        }
+        return ""
     }
     
     func loadPicture(imageView:UIImageView, url:URL){
@@ -208,7 +310,7 @@ class BaseViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
         imageView.kf.indicatorType = .activity
         imageView.kf.setImage(
             with: url,
-            placeholder: UIImage(named: "icon.png"),
+            placeholder: UIImage.gif(name: "loading.gif"),
             options: [
                 .processor(processor),
                 .scaleFactor(UIScreen.main.scale),
@@ -241,6 +343,29 @@ class BaseViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
           print(error.localizedDescription)
           return nil
         }
+    }
+    
+    
+    func hexStringToUIColor (hex:String) -> UIColor {
+        var cString:String = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+
+        if (cString.hasPrefix("#")) {
+            cString.remove(at: cString.startIndex)
+        }
+
+        if ((cString.count) != 6) {
+            return UIColor.gray
+        }
+
+        var rgbValue:UInt64 = 0
+        Scanner(string: cString).scanHexInt64(&rgbValue)
+
+        return UIColor(
+            red: CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0,
+            green: CGFloat((rgbValue & 0x00FF00) >> 8) / 255.0,
+            blue: CGFloat(rgbValue & 0x0000FF) / 255.0,
+            alpha: CGFloat(1.0)
+        )
     }
 
 }
@@ -436,8 +561,8 @@ extension UITextView{
         placeholderLabel.font = UIFont.systemFont(ofSize: (self.font?.pointSize)!)
         placeholderLabel.sizeToFit()
         placeholderLabel.tag = 222
-        placeholderLabel.frame.origin = CGPoint(x: 12, y: (self.font?.pointSize)! / 2)
-        placeholderLabel.textColor = UIColor.lightGray
+        placeholderLabel.frame.origin = CGPoint(x: 15, y: (self.font?.pointSize)! / 2)
+        placeholderLabel.textColor = UIColor(rgb: 0x000000, alpha: 0.15)
         placeholderLabel.isHidden = !self.text.isEmpty
         
         self.addSubview(placeholderLabel)
@@ -476,20 +601,51 @@ extension Date {
 }
 
 
+extension String  {
+    var isNumber: Bool {
+        return !isEmpty && rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) == nil
+    }
+}
+
+
+extension Date {
+   func getFormattedDate(format: String) -> String {
+        let dateformat = DateFormatter()
+        dateformat.dateFormat = format
+        return dateformat.string(from: self)
+    }
+}
+
+
 extension UIApplication {
-
-    class func getTopViewController(base: UIViewController? = UIApplication.shared.keyWindow?.rootViewController) -> UIViewController? {
-
-        if let nav = base as? UINavigationController {
-            return getTopViewController(base: nav.visibleViewController)
-
-        } else if let tab = base as? UITabBarController, let selected = tab.selectedViewController {
-            return getTopViewController(base: selected)
-
-        } else if let presented = base?.presentedViewController {
-            return getTopViewController(base: presented)
+    func topViewController() -> UIViewController? {
+        var topViewController: UIViewController? = nil
+        if #available(iOS 13, *) {
+            for scene in connectedScenes {
+                if let windowScene = scene as? UIWindowScene {
+                    for window in windowScene.windows {
+                        if window.isKeyWindow {
+                            topViewController = window.rootViewController
+                        }
+                    }
+                }
+            }
+        } else {
+            topViewController = keyWindow?.rootViewController
         }
-        return base
+        while true {
+            if let presented = topViewController?.presentedViewController {
+                topViewController = presented
+            } else if let navController = topViewController as? UINavigationController {
+                topViewController = navController.topViewController
+            } else if let tabBarController = topViewController as? UITabBarController {
+                topViewController = tabBarController.selectedViewController
+            } else {
+                // Handle any other third party container in `else if` if required
+                break
+            }
+        }
+        return topViewController
     }
 }
 
@@ -681,13 +837,66 @@ extension NSMutableAttributedString {
     }
 }
 
+public enum BorderSide {
+    case top, bottom, left, right
+}
+
+extension UIView {
+    public func addBorder(side: BorderSide, color: UIColor, width: CGFloat) {
+        let border = UIView()
+        border.translatesAutoresizingMaskIntoConstraints = false
+        border.backgroundColor = color
+        self.addSubview(border)
+
+        let topConstraint = topAnchor.constraint(equalTo: border.topAnchor)
+        let rightConstraint = trailingAnchor.constraint(equalTo: border.trailingAnchor)
+        let bottomConstraint = bottomAnchor.constraint(equalTo: border.bottomAnchor)
+        let leftConstraint = leadingAnchor.constraint(equalTo: border.leadingAnchor)
+        let heightConstraint = border.heightAnchor.constraint(equalToConstant: width)
+        let widthConstraint = border.widthAnchor.constraint(equalToConstant: width)
 
 
+        switch side {
+        case .top:
+            NSLayoutConstraint.activate([leftConstraint, topConstraint, rightConstraint, heightConstraint])
+        case .right:
+            NSLayoutConstraint.activate([topConstraint, rightConstraint, bottomConstraint, widthConstraint])
+        case .bottom:
+            NSLayoutConstraint.activate([rightConstraint, bottomConstraint, leftConstraint, heightConstraint])
+        case .left:
+            NSLayoutConstraint.activate([bottomConstraint, leftConstraint, topConstraint, widthConstraint])
+        }
+    }
+}
 
 
+extension String {
+    func capitalizingFirstLetter() -> String {
+        return prefix(1).capitalized + dropFirst()
+    }
+
+    mutating func capitalizeFirstLetter() {
+        self = self.capitalizingFirstLetter()
+    }
+}
 
 
+extension UIImage {
+    func withColor(_ color: UIColor) -> UIImage? {
+        UIGraphicsBeginImageContextWithOptions(size, false, scale)
+        // 1
+        let drawRect = CGRect(x: 0,y: 0,width: size.width,height: size.height)
+        // 2
+        color.setFill()
+        UIRectFill(drawRect)
+        // 3
+        draw(in: drawRect, blendMode: .destinationIn, alpha: 1)
 
+        let tintedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return tintedImage!
+    }
+}
 
 
 

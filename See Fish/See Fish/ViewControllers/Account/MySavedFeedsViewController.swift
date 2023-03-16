@@ -107,7 +107,9 @@ class MySavedFeedsViewController: BaseViewController, UICollectionViewDelegate, 
         APIs.getSavedFeeds(member_id: thisUser.idx, handleCallback: { [self]
             saveds, result_code in
             self.dismissLoadingView()
-            if result_code == "0"{
+            if result_code == "0" {
+                posts.removeAll()
+                searchPosts.removeAll()
                 for sv in saveds! {
                     let ps = gHomeViewController.searchPosts.filter{ post in
                         return post.idx == sv.post_id

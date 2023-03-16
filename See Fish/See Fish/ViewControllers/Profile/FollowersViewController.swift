@@ -88,11 +88,8 @@ class FollowersViewController: BaseViewController, UICollectionViewDelegate, UIC
             print(result_code)
             if result_code == "0"{
                 self.users = users!
-                if users!.count == 0 {
-                    self.noResult.isHidden = false
-                }else {
-                    self.noResult.isHidden = true
-                }
+                if self.users.contains(where: {$0.idx == thisUser.idx}) { gUserProfileViewController.isFollowing = true }
+                self.noResult.isHidden = !users!.isEmpty
                 self.userList.reloadData()
                 
             }

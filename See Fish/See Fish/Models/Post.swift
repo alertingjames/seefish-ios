@@ -11,6 +11,15 @@ import AVKit
 class Post{
     var idx:Int64 = 0
     var user:User!
+    var title:String = ""
+    var category:String = ""
+    var color:String = ""
+    var rod:String = ""
+    var reel:String = ""
+    var lure:String = ""
+    var line:String = ""
+    var lat:Double!
+    var lng:Double!
     var content:String = ""
     var picture_url:String = ""
     var video_url:String = ""

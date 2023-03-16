@@ -85,8 +85,11 @@ class BlockedUserListViewController: BaseViewController , UICollectionViewDelega
     
     @objc func userUnblock(_ sender:UIButton) {
         let user = self.users[sender.tag]
-        
-        let alert = UIAlertController(title: "Warning", message: "Are you sure you want to unblock this user?", preferredStyle: .alert)
+        let msg = """
+        Are you sure you want to
+        unblock this user?
+        """
+        let alert = UIAlertController(title: "Warning", message: msg, preferredStyle: .alert)
         let noAction = UIAlertAction(title: "No", style: .destructive){(ACTION) in
             alert.dismiss(animated: true, completion: nil)
         }
@@ -95,7 +98,8 @@ class BlockedUserListViewController: BaseViewController , UICollectionViewDelega
         }
         alert.addAction(noAction)
         alert.addAction(yesAction)
-        self.present(alert, animated:true, completion:nil);
+        self.present(alert, animated:true, completion:nil)
+        UILabel.appearance(whenContainedInInstancesOf: [UIAlertController.self]).numberOfLines = 0
     }
     
     func unblockUser(member_id:Int64) {

@@ -12,7 +12,6 @@ import SwiftyJSON
 
 class SignupViewController: BaseViewController {
     
-    @IBOutlet weak var pictureView: UIView!
     @IBOutlet weak var pictureBox: UIImageView!
     
     @IBOutlet weak var nameBox: HoshiTextField!
@@ -24,6 +23,10 @@ class SignupViewController: BaseViewController {
     @IBOutlet weak var locationBtn: UIButton!
     @IBOutlet weak var signupBtn: UIButton!
     @IBOutlet weak var backBtn: UIButton!
+    @IBOutlet weak var termsCheckBox: UIImageView!
+    @IBOutlet weak var termsView: UIView!
+    var isTermsChecked:Bool = false
+    @IBOutlet weak var inputContainer: UIView!
     
     var showF:Bool = false
     var show = UIImage(named: "eyeunlock")
@@ -40,46 +43,43 @@ class SignupViewController: BaseViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        recent = self
-        gSignupViewController = self
-        
-        pictureView.layer.cornerRadius = 15
 
         showBtn.setImageTintColor(primaryLightColor)
         locationBtn.setImageTintColor(primaryLightColor)
-        backBtn.setImageTintColor(primaryColor)
+        backBtn.setImageTintColor(.white)
+        
+        inputContainer.roundCorners(corners: [.topLeft], radius: 40)
         
         pictureBox.layer.cornerRadius = pictureBox.frame.height / 2
         
         nameBox.placeholder = "Name"
         nameBox.minimumFontSize = 5
         nameBox.textColor = primaryDarkColor
-        nameBox.font = UIFont(name: "Helvetica", size: 19)
+        nameBox.font = UIFont(name: "Helvetica", size: 17)
                 
         emailBox.placeholder = "Email address"
         emailBox.minimumFontSize = 5
         emailBox.textColor = primaryDarkColor
-        emailBox.font = UIFont(name: "Helvetica", size: 19)
+        emailBox.font = UIFont(name: "Helvetica", size: 17)
         emailBox.keyboardType = UIKeyboardType.emailAddress
         
         passwordBox.placeholder = "Password"
         passwordBox.minimumFontSize = 5
         passwordBox.paddingRightCustom = 35
         passwordBox.textColor = primaryDarkColor
-        passwordBox.font = UIFont(name: "Helvetica", size: 19)
+        passwordBox.font = UIFont(name: "Helvetica", size: 17)
         passwordBox.isSecureTextEntry = true
         
         phoneBox.placeholder = "Phone number"
         phoneBox.minimumFontSize = 5
         phoneBox.textColor = primaryDarkColor
-        phoneBox.font = UIFont(name: "Helvetica", size: 19)
+        phoneBox.font = UIFont(name: "Helvetica", size: 17)
         phoneBox.keyboardType = .phonePad
         
         cityBox.placeholder = "City/state name"
         cityBox.minimumFontSize = 5
         cityBox.textColor = primaryDarkColor
-        cityBox.font = UIFont(name: "Helvetica", size: 19)
+        cityBox.font = UIFont(name: "Helvetica", size: 17)
         cityBox.isUserInteractionEnabled = false
         cityBox.isEnabled = false
         
@@ -91,9 +91,36 @@ class SignupViewController: BaseViewController {
         YPImagePickerConfiguration.shared = config
         picker = YPImagePicker()
         
-        let tap = UITapGestureRecognizer(target: self, action: #selector(pickPicture))
-        pictureView.addGestureRecognizer(tap)
+        var tap = UITapGestureRecognizer(target: self, action: #selector(pickPicture))
+        pictureBox.isUserInteractionEnabled = true
+        pictureBox.addGestureRecognizer(tap)
         
+        tap = UITapGestureRecognizer(target: self, action: #selector(checkTerms))
+        termsView.isUserInteractionEnabled = true
+        termsView.addGestureRecognizer(tap)
+        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        recent = self
+        gSignupViewController = self
+    }
+    
+    override var preferredStatusBarStyle : UIStatusBarStyle {
+        return .lightContent
+    }
+    
+    @objc func checkTerms() {
+        if !isTermsChecked {
+            to(strb: "Main", vc: "TermsViewController", trans: true, modal: false, anim: false)
+        }
+    }
+    
+    func acceptTerms() {
+        thisUser.terms = "read_terms"
+        termsCheckBox.image = UIImage(systemName: "checkmark.square.fill")
+        termsCheckBox.tintColor = primaryColor
+        isTermsChecked = true
     }
     
     @objc func pickPicture(gesture:UITapGestureRecognizer){
@@ -124,9 +151,9 @@ class SignupViewController: BaseViewController {
     }
     
     @IBAction func openMap(_ sender: Any) {
-        let vc = self.storyboard?.instantiateViewController(identifier: "PickLocationViewController")
-        self.modalPresentationStyle = .fullScreen
-        self.present(vc!, animated: true, completion: nil)
+        let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "PickLocationViewController")
+        vc.modalPresentationStyle = .fullScreen
+        self.present(vc, animated: true, completion: nil)
     }
     
     @IBAction func back(_ sender: Any) {
@@ -135,31 +162,31 @@ class SignupViewController: BaseViewController {
     
     @IBAction func signup(_ sender: Any) {
         if nameBox.text?.trimmingCharacters(in: .whitespacesAndNewlines).count == 0 {
-            showToast(msg: "Enter your name.")
+            showToast(msg: "Please enter your name.")
             return
         }
         if emailBox.text?.trimmingCharacters(in: .whitespacesAndNewlines).count == 0 {
-            showToast(msg: "Enter your email.")
+            showToast(msg: "Please enter your email.")
             return
         }
         
         if !isValidEmail(email: (emailBox.text?.trimmingCharacters(in: .whitespacesAndNewlines))!) {
-            showToast(msg: "Enter a valid email.")
+            showToast(msg: "Please enter a valid email.")
             return
         }
         
         if passwordBox.text?.trimmingCharacters(in: .whitespacesAndNewlines).count == 0 {
-            showToast(msg: "Enter your password.")
+            showToast(msg: "Please enter your password.")
             return
         }
         
         if (passwordBox.text?.trimmingCharacters(in: .whitespacesAndNewlines).count)! <= 5 {
-            showToast(msg: "Enter characters more than 5.")
+            showToast(msg: "Please enter characters more than 5.")
             return
         }
         
         if phoneBox.text?.trimmingCharacters(in: .whitespacesAndNewlines).count == 0 {
-            showToast(msg: "Enter your phone number.")
+            showToast(msg: "Please enter your phone number.")
             return
         }
         
@@ -169,7 +196,12 @@ class SignupViewController: BaseViewController {
 //        }
         
         if cityBox.text?.trimmingCharacters(in: .whitespacesAndNewlines).count == 0 {
-            showToast(msg: "Enter your city.")
+            showToast(msg: "Please enter your city.")
+            return
+        }
+        
+        if !isTermsChecked {
+            showToast(msg: "Please read Terms and Privacy Policy.")
             return
         }
         
@@ -273,9 +305,19 @@ class SignupViewController: BaseViewController {
         UserDefaults.standard.set(thisUser.email, forKey: "email")
         UserDefaults.standard.set(thisUser.password, forKey: "password")
         
-        let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "TermsViewController")
-        vc.modalPresentationStyle = .fullScreen
-        self.transitionVc(vc: vc, duration: 0.3, type: .fromRight)
+        let msg = """
+        We have sent a verification link to
+        your email. Please check your email.
+        """
+        
+        let alert = UIAlertController(title: "Notice", message: msg, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "OK", style: .cancel){(ACTION) in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                self.dismissViewController()
+            }
+        }
+        alert.addAction(okAction)
+        self.present(alert, animated:true, completion:nil);
     }
     
     

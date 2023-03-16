@@ -19,7 +19,6 @@ class VideoPlayViewController: BaseViewController {
     @IBOutlet weak var btn_menu: UIButton!
     @IBOutlet weak var txv_desc: UITextView!    
     @IBOutlet weak var lbl_posted_time: UILabel!
-    @IBOutlet weak var descViewHeight: NSLayoutConstraint!
     
     @IBOutlet weak var lbl_likes: UILabel!
     @IBOutlet weak var lbl_comments: UILabel!
@@ -28,6 +27,27 @@ class VideoPlayViewController: BaseViewController {
     @IBOutlet weak var saveButton: UIButton!
     
     var player:AVPlayer!
+    
+    @IBOutlet weak var titleBox: UILabel!
+    @IBOutlet weak var categoryView: UIView!
+    @IBOutlet weak var categoryBox: EdgeInsetLabel!
+    @IBOutlet weak var pinButton: UIButton!
+    @IBOutlet weak var rodView: UIView!
+    @IBOutlet weak var rodBox: UILabel!
+    @IBOutlet weak var rodAmazonButton: UIButton!
+    @IBOutlet weak var rodSearchButton: UIButton!
+    @IBOutlet weak var reelView: UIView!
+    @IBOutlet weak var reelBox: UILabel!
+    @IBOutlet weak var reelAmazonButton: UIButton!
+    @IBOutlet weak var reelSearchButton: UIButton!
+    @IBOutlet weak var lureView: UIView!
+    @IBOutlet weak var lureBox: UILabel!
+    @IBOutlet weak var lureAmazonButton: UIButton!
+    @IBOutlet weak var lureSearchButton: UIButton!
+    @IBOutlet weak var lineView: UIView!
+    @IBOutlet weak var lineBox: UILabel!
+    @IBOutlet weak var lineAmazonButton: UIButton!
+    @IBOutlet weak var lineSearchButton: UIButton!
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -58,14 +78,22 @@ class VideoPlayViewController: BaseViewController {
         recent = self
 
         img_poster.layer.cornerRadius = img_poster.frame.height / 2
+        rodSearchButton.setImageTintColor(primaryColor)
+        reelSearchButton.setImageTintColor(primaryColor)
+        lureSearchButton.setImageTintColor(primaryColor)
+        lineSearchButton.setImageTintColor(primaryColor)
         loadPicture(imageView: img_poster, url: URL(string: gPost.user.photo_url)!)
         lbl_poster_name.text = gPost.user.name
         lbl_poster_city.text = gPost.user.city
         lbl_follows.text = "Followers: \(gPost.user.followers)"
         txv_desc.text = gPost.content
-        if gPost.content.count == 0 {
-            descViewHeight.constant = 0
+        if gPost.content.count > 0 {
+            txv_desc.textContainerInset = UIEdgeInsets(top: 8, left: 5, bottom: 8, right: 5)
+            txv_desc.visibility = .visible
+        }else {
+            txv_desc.visibility = .gone
         }
+        txv_desc.isScrollEnabled = false
         lbl_posted_time.text = gPost.posted_time
         
         lbl_likes.text = String(gPost.likes)
@@ -95,6 +123,38 @@ class VideoPlayViewController: BaseViewController {
         commentButton.setImageTintColor(.white)
         lbl_likes.textColor = .white
         lbl_comments.textColor = .white
+        
+        if gPost.title == "" { titleBox.visibility = .gone }
+        else {
+            titleBox.visibility = .visible
+            titleBox.text = gPost.title
+        }
+        if gPost.category == "" { categoryView.visibility = .gone }
+        else {
+            categoryView.visibility = .visible
+            categoryBox.text = gPost.category
+            categoryBox.textInsets = UIEdgeInsets(top: 8, left: 25, bottom: 8, right: 25)
+            categoryBox.roundCorners(corners: [.topRight, .bottomLeft], radius: 25)
+            categoryBox.layer.masksToBounds = true
+        }
+        if gPost.lat != nil && gPost.lng != nil { pinButton.visibility = .visible }
+        else { pinButton.visibility = .gone }
+        if gPost.rod != "" {
+            rodBox.text = gPost.rod
+            rodView.visibility = .visible
+        }else { rodView.visibility = .gone }
+        if gPost.reel != "" {
+            reelBox.text = gPost.reel
+            reelView.visibility = .visible
+        }else { reelView.visibility = .gone }
+        if gPost.lure != "" {
+            lureBox.text = gPost.lure
+            lureView.visibility = .visible
+        }else { lureView.visibility = .gone }
+        if gPost.line != "" {
+            lineBox.text = gPost.line
+            lineView.visibility = .visible
+        }else { lineView.visibility = .gone }
 
     }
     
@@ -124,8 +184,12 @@ class VideoPlayViewController: BaseViewController {
                         vc.modalPresentationStyle = .fullScreen
                         self.present(vc, animated: true, completion: nil)
                     }
-                }else if idx == 1{
-                    let alert = UIAlertController(title: "Delete", message: "Are you sure you want to delete this feed?", preferredStyle: .alert)
+                }else if idx == 1 {
+                    let msg = """
+                    Are you sure you want to delete
+                    this feed?
+                    """
+                    let alert = UIAlertController(title: "Delete", message: msg, preferredStyle: .alert)
                     let noAction = UIAlertAction(title: "No", style: .cancel, handler: {
                         (action : UIAlertAction!) -> Void in })
                     let yesAction = UIAlertAction(title: "Yes", style: .destructive, handler: { alert -> Void in
@@ -228,14 +292,16 @@ class VideoPlayViewController: BaseViewController {
     
     @IBAction func savePost(_ sender: Any) {
         if gPost.user.idx != thisUser.idx {
-            savePost(member_id: thisUser.idx, post: gPost)
+//            savePost(member_id: thisUser.idx, post: gPost)
         }
+        savePost(member_id: thisUser.idx, post: gPost)
     }
     
     @IBAction func openComment(_ sender: Any) {
         if gPost.user.idx != thisUser.idx {
-            openCommentBox()
+//            openCommentBox()
         }
+        openCommentBox()
     }
     
     @IBAction func likePost(_ sender: Any) {
@@ -309,6 +375,50 @@ class VideoPlayViewController: BaseViewController {
             }
         })
     }
+    
+    
+    @IBAction func toMap(_ sender: Any) {
+        to(strb: "Main2", vc: "PostMapViewController", trans: false, modal: false, anim: false)
+    }
+    
+    @IBAction func toRodAmazon(_ sender: Any) {
+        let goods = gPost.rod
+        if goods.count > 0 {
+            toAmazon(goods: goods)
+        }
+    }
+    
+    @IBAction func toReelAmazon(_ sender: Any) {
+        let goods = gPost.reel
+        if goods.count > 0 {
+            toAmazon(goods: goods)
+        }
+    }
+    
+    @IBAction func toLureAmazon(_ sender: Any) {
+        let goods = gPost.lure
+        if goods.count > 0 {
+            toAmazon(goods: goods)
+        }
+    }
+    
+    @IBAction func toLineAmazon(_ sender: Any) {
+        let goods = gPost.line
+        if goods.count > 0 {
+            toAmazon(goods: goods)
+        }
+    }
+    
+    
+    func toAmazon(goods:String) {
+        let affiliate_link = "https://www.amazon.com/s?k=" + goods + "&ref=nb_sb_noss_1" + "&tag=tbd0ce-20"
+        let strURL: String = affiliate_link.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+        if let url = URL.init(string: strURL) {
+            UIApplication.shared.open(url)
+        }
+    }
+    
+    
     
 }
 

@@ -9,6 +9,7 @@ import UIKit
 
 class TermsViewController: BaseViewController {
     
+    @IBOutlet weak var backButton: UIButton!
     @IBOutlet weak var textBox: UITextView!
     @IBOutlet weak var agreeButton: UIButton!
     
@@ -26,18 +27,27 @@ class TermsViewController: BaseViewController {
     }
     
     @IBAction func agreeTerms(_ sender: Any) {
-        self.showLoadingView()
-        APIs.readTerms(member_id: thisUser.idx, handleCallback: {
-            result in
-            print("result: \(result)")
-            self.dismissLoadingView()
-            if result == "0" {
-                thisUser.terms = "read_terms"
-                let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "MainViewController")
-                vc.modalPresentationStyle = .fullScreen
-                self.transitionVc(vc: vc, duration: 0.3, type: .fromRight)
-            }
-        })
+//        self.showLoadingView()
+//        APIs.readTerms(member_id: thisUser.idx, handleCallback: {
+//            result in
+//            print("result: \(result)")
+//            self.dismissLoadingView()
+//            if result == "0" {
+//                if gSignupViewController != nil {
+//                    gSignupViewController.acceptTerms()
+//                    self.dismissViewController()
+//                }
+//            }
+//        })
+        if gSignupViewController != nil {
+            gSignupViewController.acceptTerms()
+            self.dismissViewController()
+        }
+    }
+    
+    
+    @IBAction func back(_ sender: Any) {
+        self.dismissViewController()
     }
     
 }

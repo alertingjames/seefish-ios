@@ -217,7 +217,7 @@ class SearchViewController: BaseViewController, UICollectionViewDelegate, UIColl
         APIs.getPosts(member_id: member_id, handleCallback: {
             posts, result_code in
             if self.posts.count == 0 {
-                if self.loadingView.isAnimating { self.dismissLoadingView() }
+                self.dismissLoadingView()
             }
             print(result_code)
             if result_code == "0"{

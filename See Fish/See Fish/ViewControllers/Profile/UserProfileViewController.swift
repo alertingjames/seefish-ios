@@ -25,8 +25,6 @@ class UserProfileViewController: BaseViewController {
         super.viewDidLoad()
 
         if let storyboard = self.storyboard {
-            
-            gUserProfileViewController = self
 
             headerController = storyboard
                 .instantiateViewController(withIdentifier: "ProfileHeaderViewController") as? ProfileHeaderViewController
@@ -49,7 +47,7 @@ class UserProfileViewController: BaseViewController {
                 followersController,
                 followingsController])
             
-            segmentedViewController.headerViewHeight = UIScreen.main.bounds.width * 4/5
+            segmentedViewController.headerViewHeight = UIScreen.main.bounds.width * 4.1/5
             segmentedViewController.segmentViewHeight = 40.0
             segmentedViewController.selectedSegmentViewHeight = 1.5
 //            headerViewOffsetHeight = 50.0
@@ -78,22 +76,44 @@ class UserProfileViewController: BaseViewController {
 //        btn_menu.setImageTintColor(.white)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        recent = self
+        gUserProfileViewController = self
+    }
+    
+    var isFollowing:Bool = false
+    
     @IBAction func openMenu(_ sender: Any) {
         let dropDown = DropDown()
         dropDown.anchorView = btn_menu
-        let menu = ["  Message", "  Block", "  Report"]
+        var menu = [ "  Message", "  Block", "  Report"]
+        if isFollowing { menu = [ "  Shared Routes", "  Message", "  Block", "  Report"] }
         dropDown.dataSource = menu
         // Action triggered on selection
         dropDown.selectionAction = { [unowned self] (idx: Int, item: String) in
             print("Selected item: \(item) at index: \(idx)")
-            if idx == 0{
-                let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "SendMessageViewController")
-                self.present(vc, animated: true, completion: nil)
-            }else if idx == 1{
-                showDialog(message: "Are you sure you want to block this user?")
-            }else if idx == 2{
-                let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "ReportViewController")
-                self.present(vc, animated: true, completion: nil)
+            if isFollowing {
+                if idx == 0 {
+                    self.to(strb: "Main2", vc: "UserRouteHistoryViewController", trans: false, modal: false, anim: true)
+                }else if idx == 1 {
+                    let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "SendMessageViewController")
+                    self.present(vc, animated: true, completion: nil)
+                }else if idx == 2 {
+                    showDialog(message: "Are you sure you want to block this user?")
+                }else if idx == 3 {
+                    let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "ReportViewController")
+                    self.present(vc, animated: true, completion: nil)
+                }
+            }else {
+                if idx == 0 {
+                    let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "SendMessageViewController")
+                    self.present(vc, animated: true, completion: nil)
+                }else if idx == 1 {
+                    showDialog(message: "Are you sure you want to block this user?")
+                }else if idx == 2 {
+                    let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(identifier: "ReportViewController")
+                    self.present(vc, animated: true, completion: nil)
+                }
             }
         }
         DropDown.appearance().textColor = UIColor.black
@@ -104,7 +124,7 @@ class UserProfileViewController: BaseViewController {
         DropDown.appearance().cellHeight = 40
         
         dropDown.separatorColor = UIColor.lightGray
-        dropDown.width = 110
+        dropDown.width = 150
         
         dropDown.show()
     }
@@ -112,7 +132,11 @@ class UserProfileViewController: BaseViewController {
     var dialog:AlertDialog!
     
     func showDialog(message:String) {
-        let alert = UIAlertController(title: "Warning", message: "Are you sure you want to block this user?", preferredStyle: .alert)
+        let msg = """
+        Are you sure you want to block
+        this user?
+        """
+        let alert = UIAlertController(title: "Warning", message: msg, preferredStyle: .alert)
         let noAction = UIAlertAction(title: "No", style: .destructive){(ACTION) in
             alert.dismiss(animated: true, completion: nil)
         }
@@ -121,7 +145,8 @@ class UserProfileViewController: BaseViewController {
         }
         alert.addAction(noAction)
         alert.addAction(yesAction)
-        self.present(alert, animated:true, completion:nil);
+        self.present(alert, animated:true, completion:nil)
+        UILabel.appearance(whenContainedInInstancesOf: [UIAlertController.self]).numberOfLines = 0
     }
     
     func blockMember(member_id:Int64) {

@@ -16,6 +16,7 @@ class MainViewController: FluidTabBarController {
         gMainViewController = self
         
         self.tabBar.tintColor = primaryColor
+        self.tabBar.backgroundColor = .white
         
         let homeVC = self.storyboard?.instantiateViewController(identifier: "HomeViewController")
         let searchVC = self.storyboard?.instantiateViewController(identifier: "SearchViewController")
