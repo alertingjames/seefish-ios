@@ -18,7 +18,7 @@ var primaryDarkColor = UIColor(rgb: 0x064273, alpha: 1.0)
 
 ////////// Request URL /////////////////
 let SERVER_URL = "https://cayley5.pythonanywhere.com/seefish/"
-
+let FIREBASE_URL = "https://seefish-7c03f-default-rtdb.firebaseio.com/"
 
 /////////// Map ////////////////////////////////
 var RADIUS:Float = 15.24
@@ -33,6 +33,7 @@ var gMediaOption = ""
 var gCategoryList = [FishCategory]()
 var isConnectedToNetwork:Bool = false
 var authMesOpt:String = ""
+var gId:Int64 = 0
 
 ///////// ViewController //////////////////////////
 var recent:UIViewController!
@@ -60,7 +61,11 @@ var gLocationSharingViewController:LocationSharingViewController!
 var gLocationRouteHistoryViewController:LocationRouteHistoryViewController!
 var gRouteFollowingsViewController:RouteFollowingsViewController!
 
+var gRouteListViewController:RouteListViewController!
+var gMyRoutesViewController:MyRoutesViewController!
+var gOtherRoutesViewController:OtherRoutesViewController!
 
+var gShareAlert:shareAlert!
 
 
 

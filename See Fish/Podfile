@@ -49,6 +49,14 @@ pod 'SwiftVideoBackground'
 pod 'ISEmojiView'
 pod 'ALCameraViewController'
 pod 'ReachabilitySwift'
+pod 'Firebase/Core'
+pod 'Firebase/Auth'
+pod 'FirebaseMessaging'
+pod 'Firebase/Database'
+pod 'Firebase/Storage'
+pod 'Firebase/Analytics'
+pod 'FBSDKLoginKit'
+pod 'FBSDKShareKit'
 
 end
 

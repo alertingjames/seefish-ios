@@ -242,6 +242,9 @@ class LocationSharingViewController: BaseViewController, CLLocationManagerDelega
                         if recent == gLocationRouteHistoryViewController {
                             gLocationRouteHistoryViewController.getMyRoutes()
                             self.dismiss(animated: true)
+                        }else if recent == gMyRoutesViewController {
+                            gMyRoutesViewController.getMyRoutes()
+                            self.dismiss(animated: true)
                         }else {
                             self.to1(strb: "Main2", vc: "LocationRouteHistoryViewController", trans: false, modal: false, anim: true)
                         }
@@ -293,6 +296,9 @@ class LocationSharingViewController: BaseViewController, CLLocationManagerDelega
                         if gHomeViewController.IS8HOURS {
                             if recent == gLocationRouteHistoryViewController {
                                 gLocationRouteHistoryViewController.getMyRoutes()
+                                self.dismiss(animated: true)
+                            }else if recent == gMyRoutesViewController {
+                                gMyRoutesViewController.getMyRoutes()
                                 self.dismiss(animated: true)
                             }else {
                                 self.to1(strb: "Main2", vc: "LocationRouteHistoryViewController", trans: false, modal: false, anim: true)
@@ -383,7 +389,8 @@ class LocationSharingViewController: BaseViewController, CLLocationManagerDelega
         }
         oldTraces = newTraces
         
-        distanceBox.text = String(format: "%.2f", gHomeViewController.totalDistance) + "km"
+//        distanceBox.text = String(format: "%.2f", gHomeViewController.totalDistance) + "km"
+        distanceBox.text = String(format: "%.2f", gHomeViewController.totalDistance * ratioKMToMILE) + "mi"
         durationBox.text = getDurationFromMilliseconds(ms: gHomeViewController.duration)
     }
     
@@ -408,7 +415,8 @@ class LocationSharingViewController: BaseViewController, CLLocationManagerDelega
         marker2.appearAnimation = .pop
         map.selectedMarker = marker2
         
-        distanceBox.text = String(format: "%.2f", gRoute.distance) + "km"
+//        distanceBox.text = String(format: "%.2f", gRoute.distance) + "km"
+        distanceBox.text = String(format: "%.2f", gRoute.distance * ratioKMToMILE) + "mi"
         durationBox.text = getDurationFromMilliseconds(ms: gRoute.duration)
         
         gHomeViewController.totalDistance = gRoute.distance
@@ -490,7 +498,8 @@ class LocationSharingViewController: BaseViewController, CLLocationManagerDelega
     
     func updateRealTimeRoute() {
         if isLive {
-            distanceBox.text = String(format: "%.2f", gHomeViewController.totalDistance) + "km"
+//            distanceBox.text = String(format: "%.2f", gHomeViewController.totalDistance) + "km"
+            distanceBox.text = String(format: "%.2f", gHomeViewController.totalDistance * ratioKMToMILE) + "mi"
             durationBox.text = getDurationFromMilliseconds(ms: gHomeViewController.duration)
             let path = GMSMutablePath()
             if latestPoint != nil { path.addLatitude(latestPoint.lat, longitude: latestPoint.lng) }

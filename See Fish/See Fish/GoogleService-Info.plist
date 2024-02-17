@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>663474826742-hjsleofu29l46vv0ru2tpfoa0gsd3brh.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.663474826742-hjsleofu29l46vv0ru2tpfoa0gsd3brh</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCf8xd8Rgfq4CUm-DAUrX3tn1b0siSeNK0</string>
+	<key>GCM_SENDER_ID</key>
+	<string>663474826742</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.app.seefish</string>
+	<key>PROJECT_ID</key>
+	<string>seefish-7c03f</string>
+	<key>STORAGE_BUCKET</key>
+	<string>seefish-7c03f.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:663474826742:ios:9e3fd7543ad3185aac6bd7</string>
+</dict>
+</plist>

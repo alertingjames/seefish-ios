@@ -11,11 +11,12 @@ import GSImageViewerController
 import AVFoundation
 import MobileCoreServices
 import CoreLocation
+import FBSDKCoreKit
+import FBSDKShareKit
+import Photos
+import Social
 
-class ImageSubmitViewController: BaseViewController, CLLocationManagerDelegate, UINavigationControllerDelegate {
-    func noPhotos() {
-        print("No photos")
-    }
+class ImageSubmitViewController: BaseViewController, CLLocationManagerDelegate, UINavigationControllerDelegate, UIDocumentInteractionControllerDelegate {
     
     @IBOutlet weak var imageFrameHeight: NSLayoutConstraint!
     @IBOutlet weak var imageAddBtn: UIButton!
@@ -241,16 +242,16 @@ class ImageSubmitViewController: BaseViewController, CLLocationManagerDelegate, 
         let parameters: [String:Any] = [
             "post_id" : "0",
             "member_id" : String(thisUser.idx),
-            "title": titleBox.text as Any,
-            "category": categoryBox.text as Any,
-            "rod": rodBox.text as Any,
-            "reel": reelBox.text as Any,
-            "lure": lureBox.text as Any,
-            "line": lineBox.text as Any,
-            "content" : self.txv_desc.text as Any,
+            "title": titleBox.text!,
+            "category": categoryBox.text!,
+            "rod": rodBox.text!,
+            "reel": reelBox.text!,
+            "lure": lureBox.text!,
+            "line": lineBox.text!,
+            "content" : self.txv_desc.text!,
             "lat": locationSharingSW.isOn && thisUserLocation != nil ? String(thisUserLocation.latitude) : "",
             "lng": locationSharingSW.isOn && thisUserLocation != nil ? String(thisUserLocation.longitude) : "",
-            "pic_count" : String(self.sliderImageFilesArray.count) as Any,
+            "pic_count" : String(self.sliderImageFilesArray.count),
         ]
         
         let ImageArray:NSMutableArray = []
@@ -263,7 +264,7 @@ class ImageSubmitViewController: BaseViewController, CLLocationManagerDelegate, 
             // Your Will Get Response here
             self.dismissLoadingView()
             print("Post Response: \(response)")
-            if isSuccess == true{
+            if isSuccess == true {
                 let result = response["result_code"] as Any
                 print("Result: \(result)")
                 if result as! String == "0"{
@@ -277,7 +278,7 @@ class ImageSubmitViewController: BaseViewController, CLLocationManagerDelegate, 
                     self.showToast(msg: "Something is wrong")                    
                     self.dismiss(animated: true, completion: nil)
                 }
-            }else{
+            } else {
                 let message = "File size: " + String(response.fileSize()) + "\n" + "Description: " + response.description
                 self.showToast(msg: "Issue: \n" + message)
             }
@@ -296,11 +297,177 @@ class ImageSubmitViewController: BaseViewController, CLLocationManagerDelegate, 
         
     }
     
+    @IBAction func FBShare(_ sender: Any) {
+        if sliderImagesArray.count > 0 {
+            let content = SharePhotoContent()
+            for i in 0..<sliderImagesArray.count {
+                let photo = SharePhoto(
+                    image: sliderImagesArray[i] as! UIImage,
+                    isUserGenerated: true
+                )
+                if i == 0 {
+                    var quote = titleBox.text! + "\n" + categoryBox.text!
+                    if txv_desc.text.count > 0 { quote += "\n" + txv_desc.text! }
+                    photo.caption = quote
+                }
+                content.photos.append(photo)
+            }
+            let dialog = ShareDialog(viewController: self, content: content, delegate: self)
+            // Recommended to validate before trying to display the dialog
+            do {
+                try dialog.validate()
+            } catch {
+                print(error)
+            }
+            dialog.show()
+        }
+        
+//        if sliderImagesArray.count == 0 { return }
+//        var quote = titleBox.text! + "\n" + categoryBox.text!
+//        if txv_desc.text.count > 0 { quote += "\n" + txv_desc.text! }
+//
+//        let activityViewController = self.share(items: [quote,
+//                                                        sliderImagesArray[0] as! UIImage])
+//        self.present(activityViewController,
+//                     animated: true)
+    }
     
+    @IBAction func INShare(_ sender: Any) {
+        if sliderImagesArray.count == 0 { return }
+        var quote = titleBox.text! + "\n" + categoryBox.text!
+        if txv_desc.text.count > 0 { quote += "\n" + txv_desc.text! }
+        
+        let activityViewController = self.share(items: [quote,
+                                                        sliderImagesArray[0] as! UIImage])
+        self.present(activityViewController,
+                     animated: true)
+        
+//        tweetImage()
+        
+//        var quote = titleBox.text!
+//        if categoryBox.text != "" { quote += "\n" + categoryBox.text! }
+//        if txv_desc.text.count > 0 { quote += "\n" + txv_desc.text! }
+//
+//        tweetImage(text: quote, image: sliderImageFilesArray[0] as! Data)
+        
+    }
+    
+    @IBAction func INSShare(_ sender: Any) {
+        if sliderImagesArray.count == 0 { return }
+        var quote = titleBox.text! + "\n" + categoryBox.text!
+        if txv_desc.text.count > 0 { quote += "\n" + txv_desc.text! }
+        let activityVC = UIActivityViewController(activityItems: [sliderImagesArray[0] as! UIImage], applicationActivities: nil)
+        activityVC.popoverPresentationController?.sourceView = self.view
+        self.present(activityVC, animated: true, completion: nil)
+        
+    }
+    
+    func tweetImage() {
+//        if( TWTRTwitter.sharedInstance().sessionStore.hasLoggedInUsers() ) {
+//            let composer = TWTRComposer()
+//            composer.setText("<My Text>")
+//            composer.setImage(self.sliderImagesArray[0] as! UIImage)
+//            composer.show(from: self) { result in
+//                if( result == .done) { print("Successfully composed Tweet") }
+//                else { print("Must have cancelled...") }
+//            }
+//        } else {
+//            TWTRTwitter.sharedInstance().logIn(completion: { (session, error) in
+//                if( session != nil ) {
+//                    print("******************** \(session?.userID)")
+//                    let composer = TWTRComposer()
+//                    composer.setText("<My Text>")
+//                    composer.setImage(self.sliderImagesArray[0] as! UIImage)
+//                    composer.show(from: self) { result in
+//                        if( result == .done) { print("Successfully composed Tweet") }
+//                        else { print("Must have cancelled...") }
+//                    }
+//                } else {
+//                    let alert = UIAlertController(title: "No Twitter Accounts Available", message: "You must log in before presenting a composer.", preferredStyle: .alert)
+//                    let okAction = UIAlertAction(title: "Ok", style: .default, handler: { _ in
+//                        alert.dismiss(animated: true, completion: nil)
+//                    })
+//                    alert.addAction(okAction)
+//                    self.present(alert, animated: false, completion: nil)
+//                }
+//            })
+//        }
+        
+//        let composer = TWTRComposerViewController(initialText: "Check out this great image: ", image: (self.sliderImagesArray[0] as! UIImage), videoURL:nil)
+////        composer.delegate = self
+//        self.present(composer, animated: true, completion: nil)
+    }
+    
+    private func share(items: [Any],
+                       excludedActivityTypes: [UIActivity.ActivityType]? = nil,
+                       ipad: (forIpad: Bool, view: UIView?) = (false, nil)) -> UIActivityViewController {
+        let activityViewController = UIActivityViewController(activityItems: items,
+                                                              applicationActivities: nil)
+        if ipad.forIpad {
+            activityViewController.popoverPresentationController?.sourceView = ipad.view
+        }
+        
+        if let excludedActivityTypes = excludedActivityTypes {
+            activityViewController.excludedActivityTypes = excludedActivityTypes
+        }
+        
+        return activityViewController
+    }
+    
+    
+    func tweetImage (
+        text:String,
+        image: Data
+    ){
+        self.showLoadingView()
+        APIs.tweetImage(
+            text:text,
+            image: image,
+            handleCallback: {
+            result_code, tweet_id in
+            self.dismissLoadingView()
+            print("result code: \(result_code)")
+            if result_code == "200" {
+                self.showToast(msg: "Your feed posted to Twitter.")
+                self.openTwitterApp(tweet_id)
+            }
+            else{
+                self.showToast(msg: "Failed to tweet.")
+            }
+        })
+        
+    }
+    
+    func openTwitterApp(_ tweetid:String) {
+       let appURL = NSURL(string: "twitter://status?id=\(tweetid)")!
+       let webURL = NSURL(string: "https://twitter.com/home")!
+
+       let application = UIApplication.shared
+
+       if application.canOpenURL(appURL as URL) {
+            application.open(appURL as URL)
+       } else {
+            application.open(webURL as URL)
+       }
+    }
     
 }
 
 
+extension ImageSubmitViewController: SharingDelegate {
+    func sharer(_ sharer: Sharing, didCompleteWithResults results: [String : Any]) {
+        print(results)
+        presentAlert(title: "Success", message: "Post is done!")
+    }
+
+    func sharer(_ sharer: Sharing, didFailWithError error: Error) {
+        presentAlert(for: error)
+    }
+
+    func sharerDidCancel(_ sharer: Sharing) {
+        presentAlert(title: "Cancelled", message: "Sharing cancelled")
+    }
+}
 
 
 

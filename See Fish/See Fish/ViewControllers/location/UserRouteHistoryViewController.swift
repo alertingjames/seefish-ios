@@ -89,7 +89,8 @@ class UserRouteHistoryViewController: BaseViewController, UITableViewDataSource,
             cell.nameBox.text = route.name
             cell.timeBox.text = getDateTimeFromTimeStamp(timeStamp: Double(route.start_time)!/1000) + " ~ " + getDateTimeFromTimeStamp(timeStamp: Double(route.end_time)!/1000)
             cell.durationBox.text = getDurationFromMilliseconds(ms: route.duration)
-            cell.distanceBox.text = String(format: "%.2f", route.distance) + "km"
+//            cell.distanceBox.text = String(format: "%.2f", route.distance) + "km"
+            cell.distanceBox.text = String(format: "%.2f", route.distance * ratioKMToMILE) + "mi"
             cell.descBox.text = route.description
             if route.description.count > 0 {
                 cell.descBox.visibility = .visible
@@ -162,7 +163,7 @@ class UserRouteHistoryViewController: BaseViewController, UITableViewDataSource,
         let params = [
             "member_id": String(gUser.idx),
         ] as [String : Any]
-        Alamofire.request(SERVER_URL + "getmyroutes", method: .post, parameters: params).responseJSON { response in
+        Alamofire.request(SERVER_URL + "getuserroutes", method: .post, parameters: params).responseJSON { response in
             if gRouteList.isEmpty { self.dismissLoadingView() }
             if response.result.isFailure{
                 self.showAlertDialog(title: "Notice", message: "SERVER ERROR 500")

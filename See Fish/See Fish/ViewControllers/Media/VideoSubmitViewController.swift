@@ -14,8 +14,12 @@ import YPImagePicker
 import FlexibleAVCapture
 import SwiftVideoBackground
 import CoreLocation
+import FBSDKCoreKit
+import FBSDKShareKit
+import Photos
+import Social
 
-class VideoSubmitViewController: BaseViewController, CLLocationManagerDelegate, FlexibleAVCaptureDelegate, CachingPlayerItemDelegate {
+class VideoSubmitViewController: BaseViewController, CLLocationManagerDelegate, FlexibleAVCaptureDelegate, CachingPlayerItemDelegate, UIDocumentInteractionControllerDelegate {
     
     @IBOutlet weak var img_thumbnail: UIImageView!
     @IBOutlet weak var txv_desc: UITextView!
@@ -45,7 +49,7 @@ class VideoSubmitViewController: BaseViewController, CLLocationManagerDelegate, 
     @IBOutlet weak var videoView: UIView!
     var videoButtons:VideoOptionsViewController!
     
-    let flexibleAVCaptureVC: FlexibleAVCaptureViewController = FlexibleAVCaptureViewController()
+//    let flexibleAVCaptureVC: FlexibleAVCaptureViewController = FlexibleAVCaptureViewController()
     
     var videoURL:URL!
     var thumbnailFile:Data?
@@ -55,6 +59,8 @@ class VideoSubmitViewController: BaseViewController, CLLocationManagerDelegate, 
     
     var manager = CLLocationManager()
     var thisUserLocation:CLLocationCoordinate2D!
+    
+    var progressVC:ProgressVC!
         
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -108,8 +114,8 @@ class VideoSubmitViewController: BaseViewController, CLLocationManagerDelegate, 
             // manager.startUpdatingHeading()
         }
         
-        self.flexibleAVCaptureVC.delegate = self
-        self.flexibleAVCaptureVC.maximumRecordDuration = CMTime(seconds: 180.0, preferredTimescale: .max)
+//        self.flexibleAVCaptureVC.delegate = self
+//        self.flexibleAVCaptureVC.maximumRecordDuration = CMTime(seconds: 180.0, preferredTimescale: .max)
         
         var tap = UITapGestureRecognizer(target: self, action: #selector(toggleVideo(gesture:)))
         self.img_thumbnail.addGestureRecognizer(tap)
@@ -201,13 +207,19 @@ class VideoSubmitViewController: BaseViewController, CLLocationManagerDelegate, 
     }
     
     @IBAction func openCamera(_ sender: Any) {
-        showButtons(option: true)
+//        showButtons(option: true)
+        pickVideo()
     }
 
     @IBAction func submitPost(_ sender: Any) {
         if gPost.idx > 0 {
             if self.videoURL == nil && txv_desc.text == gPost.content {
                 showToast(msg: "Please change something for this feed.")
+                return
+            }
+            let videoSize = self.videoURL.fileSize
+            if videoSize >= 90000000 {
+                self.showAlertDialog(title: "Warning!", message: "This video is too big to upload.\nMax. video size allowed is 90MB.")
                 return
             }
             let lat = locationSharingSW.isOn && thisUserLocation != nil ? String(thisUserLocation.latitude) : (gPost.lat != nil ? String(gPost.lat) : "")
@@ -220,6 +232,11 @@ class VideoSubmitViewController: BaseViewController, CLLocationManagerDelegate, 
         }else {
             if self.videoURL == nil {
                 showToast(msg: "Please load a video.")
+                return
+            }
+            let videoSize = self.videoURL.fileSize
+            if videoSize >= 90000000 {
+                self.showAlertDialog(title: "Warning!", message: "This video is too big to upload.\nMax. video size allowed is 90MB.")
                 return
             }
             let lat = locationSharingSW.isOn && thisUserLocation != nil ? String(thisUserLocation.latitude) : ""
@@ -249,7 +266,8 @@ class VideoSubmitViewController: BaseViewController, CLLocationManagerDelegate, 
     }
     
     func recordVideo(){
-        self.present(flexibleAVCaptureVC, animated: true, completion: nil)
+//        self.present(flexibleAVCaptureVC, animated: true, completion: nil)
+        
         showButtons(option: false)
     }
     
@@ -263,21 +281,26 @@ class VideoSubmitViewController: BaseViewController, CLLocationManagerDelegate, 
         self.bgImage.isHidden = true
         self.videoView.isHidden = true
         self.addVideoBtn.setImage(UIImage(named: "pen"), for: .normal)
-        self.flexibleAVCaptureVC.dismiss(animated: true, completion: nil)
+//        self.flexibleAVCaptureVC.dismiss(animated: true, completion: nil)
     }
+    
+    var videoAsset:PHAsset?
     
     func pickVideo(){
         var config = YPImagePickerConfiguration()
         config.video.compression = AVAssetExportPresetHighestQuality
-        config.screens = [.library]
+        config.screens = [.video,.library]
         config.library.mediaType = .video
         config.video.libraryTimeLimit = 180.0
+        config.video.recordingSizeLimit = 90000000
+        config.video.recordingTimeLimit = 50.0
         config.video.minimumTimeLimit = 3.0
         config.video.trimmerMaxDuration = 180.0
         config.video.trimmerMinDuration = 3.0
         let picker = YPImagePicker(configuration: config)
         picker.didFinishPicking { [self, unowned picker] items, _ in
             if let video = items.singleVideo {
+                self.videoAsset = video.asset
                 self.videoURL = video.url
                 self.img_thumbnail.image = video.thumbnail
                 self.thumbnailFile = video.thumbnail.jpegData(compressionQuality: 0.8)
@@ -285,11 +308,18 @@ class VideoSubmitViewController: BaseViewController, CLLocationManagerDelegate, 
                 self.bgImage.isHidden = true
                 self.videoView.isHidden = true
                 self.addVideoBtn.setImage(UIImage(named: "pen"), for: .normal)
+                print("video size ************ \(self.videoURL.fileSize)")
+                let videoSize = self.videoURL.fileSize
+                if videoSize >= 90000000 {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        self.showAlertDialog(title: "Warning!", message: "This video is too big to upload.\nMax. video size allowed is 90MB.")
+                    }
+                }
             }
             picker.dismiss(animated: true, completion: nil)
         }
         present(picker, animated: true, completion: nil)
-        showButtons(option: false)
+//        showButtons(option: false)
     }
 
     func generateThumbnail(path: URL) -> UIImage? {
@@ -307,18 +337,18 @@ class VideoSubmitViewController: BaseViewController, CLLocationManagerDelegate, 
     }
     
     func postVideo(post_id: Int64, member_id:Int64, title:String, category:String, content:String, rod:String, reel:String, lure:String, line:String, lat:String, lng:String, video_url:URL, thumbnail: Data){
-        self.showLoadingView()
+        self.showProgressView()
         APIs.postVideo(post_id: post_id, member_id: member_id, title:title, category:category, content:content, rod:rod, reel:reel, lure:lure, line:line, lat:lat, lng:lng, video_url: video_url, thumbnail: thumbnail, handleCallback: {
             result_code in
-            self.dismissLoadingView()
-            print(result_code)
-            if result_code == "0"{
+            self.dismissProgressView()
+            print("result code: \(result_code)")
+            if result_code == "0" {
                 self.showToast(msg: "Your feed posted successfully.")
                 gMainViewController.selectedIndex = 0
                 self.dismiss(animated: true, completion: nil)
             }
             else{
-                self.showToast(msg: "Server issue.")
+                self.showToast(msg: result_code)
             }
         })
         
@@ -350,7 +380,191 @@ class VideoSubmitViewController: BaseViewController, CLLocationManagerDelegate, 
     }
     
     
+    func showProgressView(){
+        progressVC = (UIStoryboard(name: "Frames", bundle: nil).instantiateViewController(withIdentifier: "ProgressVC") as! ProgressVC)
+        progressVC.view.frame = CGRect(x: 0, y: 0, width: screenWidth, height: screenHeight)
+        self.addChild(progressVC)
+        self.view.addSubview(progressVC.view)
+    }
+    
+    func dismissProgressView(){
+        if progressVC != nil {
+            progressVC.view.removeFromSuperview()
+            progressVC.removeFromParent()
+        }
+    }
+    
+    func updateProgress(val:Float) {
+        if progressVC != nil {
+            progressVC.progressView.progress = val
+            progressVC.progressView.setProgress(progressVC.progressView.progress, animated: true)
+            progressVC.percentageBox.text = String(format:"%.1f", val * 100) + "%"
+        }
+    }
+    
+    @IBAction func FBShare(_ sender: Any) {
+//        if let asset = videoAsset {
+//            // Assuming you have a URL for a PHAsset
+//            let video = ShareVideo(videoAsset: asset)
+//            var quote = titleBox.text! + "\n" + categoryBox.text!
+//            if txv_desc.text.count > 0 { quote += "\n" + txv_desc.text! }
+//            let content = ShareVideoContent()
+//            content.video = video
+//            let dialog = ShareDialog(viewController: self, content: content, delegate: self)
+//            // Recommended to validate before trying to display the dialog
+//            do {
+//                try dialog.validate()
+//            } catch {
+//                print(error)
+//            }
+//            dialog.show()
+//        }
+        
+        if self.videoURL == nil { return }
+        var quote = titleBox.text! + "\n" + categoryBox.text!
+        if txv_desc.text.count > 0 { quote += "\n" + txv_desc.text! }
+        let activityViewController = self.share(items: [quote,
+                                                        self.videoURL])
+        self.present(activityViewController,
+                     animated: true)
+    }
+    
+    @IBAction func INShare(_ sender: Any) {
+        if self.videoURL == nil { return }
+        var quote = titleBox.text! + "\n" + categoryBox.text!
+        if txv_desc.text.count > 0 { quote += "\n" + txv_desc.text! }
+        let activityViewController = self.share(items: [quote,
+                                                        self.videoURL])
+        self.present(activityViewController,
+                     animated: true)
+        
+//        if !self.videoAsset!.getExtension()!.lowercased().starts(with: "mp4") {
+//            showToast(msg: "You can tweet MP4 video only.")
+//            return
+//        }
+//
+//        var quote = titleBox.text!
+//        if categoryBox.text != "" { quote += "\n" + categoryBox.text! }
+//        if txv_desc.text.count > 0 { quote += "\n" + txv_desc.text! }
+//
+//        tweetVideo(text: quote, video_url: self.videoURL)
+    }
+    
+    @IBAction func INSShare(_ sender: Any) {
+        if self.videoURL == nil { return }
+        let activityVC = UIActivityViewController(activityItems: [self.videoURL as Any], applicationActivities: nil)
+        activityVC.popoverPresentationController?.sourceView = self.view
+        self.present(activityVC, animated: true, completion: nil)        
+    }
+    
+    private func share(items: [Any],
+                       excludedActivityTypes: [UIActivity.ActivityType]? = nil,
+                       ipad: (forIpad: Bool, view: UIView?) = (false, nil)) -> UIActivityViewController {
+        let activityViewController = UIActivityViewController(activityItems: items,
+                                                              applicationActivities: nil)
+        if ipad.forIpad {
+            activityViewController.popoverPresentationController?.sourceView = ipad.view
+        }
+        
+        if let excludedActivityTypes = excludedActivityTypes {
+            activityViewController.excludedActivityTypes = excludedActivityTypes
+        }
+        
+        return activityViewController
+    }
     
     
+    func tweetVideo(
+        text:String,
+        video_url:URL
+//        ,thumbnail: Data
+    ){
+        self.showProgressView()
+        APIs.tweetVideo(
+            text:text,
+            video_url: video_url,
+//            thumbnail: thumbnail,
+            handleCallback: {
+            result_code, tweet_id in
+            self.dismissProgressView()
+            print("result code: \(result_code)")
+            if result_code == "200" {
+                self.showToast(msg: "Your feed posted to Twitter.")
+                self.openTwitterApp(tweet_id)
+            }
+            else{
+                self.showToast(msg: "Failed to tweet.")
+            }
+        })
+        
+    }
     
+    func openTwitterApp(_ tweetid:String) {
+       let appURL = NSURL(string: "twitter://status?id=\(tweetid)")!
+       let webURL = NSURL(string: "https://twitter.com/home")!
+
+       let application = UIApplication.shared
+
+       if application.canOpenURL(appURL as URL) {
+            application.open(appURL as URL)
+       } else {
+            application.open(webURL as URL)
+       }
+    }
+    
+    
+}
+
+
+extension VideoSubmitViewController: SharingDelegate {
+    func sharer(_ sharer: Sharing, didCompleteWithResults results: [String : Any]) {
+        print(results)
+        presentAlert(title: "Success", message: "Post is done!")
+    }
+
+    func sharer(_ sharer: Sharing, didFailWithError error: Error) {
+        presentAlert(for: error)
+    }
+
+    func sharerDidCancel(_ sharer: Sharing) {
+        presentAlert(title: "Cancelled", message: "Sharing cancelled")
+    }
+}
+
+
+extension URL {
+    var attributes: [FileAttributeKey : Any]? {
+        do {
+            return try FileManager.default.attributesOfItem(atPath: path)
+        } catch let error as NSError {
+            print("FileAttribute error: \(error)")
+        }
+        return nil
+    }
+
+    var fileSize: UInt64 {
+        return attributes?[.size] as? UInt64 ?? UInt64(0)
+    }
+
+    var fileSizeString: String {
+        return ByteCountFormatter.string(fromByteCount: Int64(fileSize), countStyle: .file)
+    }
+
+    var creationDate: Date? {
+        return attributes?[.creationDate] as? Date
+    }
+}
+
+
+extension PHAsset {
+    func getFileName() -> String? {
+        return self.value(forKey: "filename") as? String
+    }
+
+    func getExtension() -> String? {
+        guard let fileName = self.getFileName() else {
+            return nil
+        }
+        return URL(fileURLWithPath: fileName).pathExtension
+    }
 }

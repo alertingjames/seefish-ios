@@ -367,6 +367,37 @@ class BaseViewController: UIViewController, UITextFieldDelegate, UITextViewDeleg
             alpha: CGFloat(1.0)
         )
     }
+    
+    var isSimulator: Bool {
+        #if targetEnvironment(simulator)
+        return true
+        #else
+        return false
+        #endif
+    }
+    
+    func presentAlert(title: String, message: String) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let dismissAction = UIAlertAction(title: "Dismiss", style: .default)
+        alertController.addAction(dismissAction)
+        present(alertController, animated: true)
+    }
+
+    func presentAlert(for error: Error) {
+        let nsError = error as NSError
+        guard let sdkMessage = nsError.userInfo["com.facebook.sdk:FBSDKErrorDeveloperMessageKey"] as? String
+        else {
+            preconditionFailure("Errors from the SDK should have a developer facing message")
+        }
+        if sdkMessage.contains("needs a valid access") {
+            let msg = """
+            Please install Facebook app\nand login to it.
+            """
+            presentAlert(title: "Sharing Error", message: msg)
+        }else {
+            presentAlert(title: "Sharing Error", message: sdkMessage)
+        }
+    }
 
 }
 
@@ -899,7 +930,13 @@ extension UIImage {
 }
 
 
-
+extension Date {
+    func timeStamp() -> String {
+        let fomatter = DateFormatter()
+        fomatter.dateFormat = "yyyy-MM-dd HH:mm:ss:SSS"
+        return fomatter.string(from: self)
+    }
+}
 
 
 

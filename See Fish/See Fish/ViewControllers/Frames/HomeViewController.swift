@@ -22,22 +22,31 @@ import AddressBookUI
 import Network
 import Alamofire
 import SwiftyJSON
+import Firebase
+import FirebaseDatabase
+import FirebaseStorage
+import Photos
 
 class HomeViewController: BaseViewController, CLLocationManagerDelegate, UNUserNotificationCenterDelegate, UITableViewDataSource, UITableViewDelegate {
     
     @IBOutlet weak var btn_search: UIButton!
     @IBOutlet weak var view_searchbar: UIView!
     @IBOutlet weak var edt_search: UITextField!
+    @IBOutlet weak var btn_route: UIButton!
     @IBOutlet weak var lbl_title: UILabel!
     @IBOutlet weak var feedList: UITableView!
     @IBOutlet weak var img_noresult: UIImageView!
     @IBOutlet weak var view_noresult: UIView!
     @IBOutlet weak var img_profile: UIImageView!
-    @IBOutlet weak var view_frame: CustomDashView!    
+    @IBOutlet weak var view_frame: CustomDashView!   
+    @IBOutlet weak var noticon: UIImageView!
     @IBOutlet weak var img_search: UIImageView!
     @IBOutlet weak var img_story_add: UIImageView!
     @IBOutlet weak var locationRecordingNotificationBar: UILabel!
     @IBOutlet weak var routeFollowingsBar: UILabel!
+    @IBOutlet weak var view_noticount: UIView!
+    @IBOutlet weak var lbl_noticount: UILabel!
+    @IBOutlet weak var view_notification: UIView!
     
     let attrs: [NSAttributedString.Key: Any] = [
         .font: UIFont(name: "Comfortaa-Medium", size: 16.0)!,
@@ -64,14 +73,27 @@ class HomeViewController: BaseViewController, CLLocationManagerDelegate, UNUserN
     var liveRoute:Route!
     var userNotificationCenter = UNUserNotificationCenter.current()
     
+    var notifiedUsers = [User]()
+    var notiFrame:NotisFrame!
+    var shareAlert:shareAlert!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        notiFrame = UIStoryboard(name: "Frames", bundle: nil).instantiateViewController(identifier: "NotisFrame")
+        notiFrame.view.frame = CGRect(x: 0, y: -screenHeight, width: screenWidth, height: screenHeight)
+        
+        shareAlert = (UIStoryboard(name: "Frames", bundle: nil).instantiateViewController(withIdentifier: "shareAlert") as! shareAlert)
+        shareAlert.view.frame = CGRect(x: 0, y: 0, width: self.screenWidth, height: self.screenHeight)
+        shareAlert.buttonsView.alpha = 0
+        
         img_story_add.isHidden = true
+        view_noticount.isHidden = true
         
         view_searchbar.isHidden = true
         view_noresult.isHidden = true
         btn_search.setImageTintColor(primaryColor)
+        btn_route.setImageTintColor(primaryColor)
         setIconTintColor(imageView: img_search, color: primaryColor)
         
         edt_search.attributedPlaceholder = NSAttributedString(string: "Search...",
@@ -84,6 +106,7 @@ class HomeViewController: BaseViewController, CLLocationManagerDelegate, UNUserN
         view_searchbar.backgroundColor = UIColor(rgb: 0xffffff, alpha: 0.3)
         
         setIconTintColor(imageView: img_noresult, color: primaryColor)
+        setIconTintColor(imageView: noticon, color: primaryColor)
         
         self.img_profile.layer.cornerRadius = self.img_profile.frame.height / 2
         loadPicture(imageView: self.img_profile, url: URL(string: thisUser.photo_url)!)
@@ -161,6 +184,27 @@ class HomeViewController: BaseViewController, CLLocationManagerDelegate, UNUserN
         routeFollowingsBar.isUserInteractionEnabled = true
         routeFollowingsBar.addGestureRecognizer(tap)
         
+        tap = UITapGestureRecognizer(target: self, action: #selector(self.showNotifications(_:)))
+        view_notification.isUserInteractionEnabled = true
+        view_notification.addGestureRecognizer(tap)
+        
+        notifiedUsers.removeAll()
+        getNotifications()
+        
+    }
+    
+    @objc func showNotifications(_ sender: UITapGestureRecognizer? = nil) {
+        if self.notifiedUsers.count > 0 {
+            self.notiFrame.view.frame = CGRect(x: 0, y: -screenHeight, width: screenWidth, height: screenHeight)
+            UIView.animate(withDuration: 0.3){() -> Void in
+                self.notiFrame.view.frame = CGRect(x: 0, y: 0, width: self.screenWidth, height: self.screenHeight)
+                self.addChild(self.notiFrame)
+                self.view.addSubview(self.notiFrame.view)
+            }
+        }else {
+            let vc = UIStoryboard(name: "Frames", bundle: nil).instantiateViewController(identifier: "NotificationsViewController")
+            self.present(vc, animated: true, completion: nil)
+        }
     }
     
     @objc func toLiveRoute() {
@@ -438,6 +482,9 @@ class HomeViewController: BaseViewController, CLLocationManagerDelegate, UNUserN
             cell.saveButton.tag = index
             cell.saveButton.addTarget(self, action: #selector(toggleSave), for: .touchUpInside)
             
+            cell.shareButton.tag = index
+            cell.shareButton.addTarget(self, action: #selector(self.openShareMenu), for: .touchUpInside)
+            
             cell.titleBox.sizeToFit()
             cell.categoryView.sizeToFit()
             cell.categoryBox.sizeToFit()
@@ -590,6 +637,25 @@ class HomeViewController: BaseViewController, CLLocationManagerDelegate, UNUserN
                 self.getPosts(member_id: thisUser.idx)
             }
         })
+    }
+    
+    func showShareButtons(){
+        UIView.animate(withDuration: 0.3) {
+            self.addChild(self.shareAlert)
+            self.view.addSubview(self.shareAlert.view)
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.shareAlert.showButtonFrame()
+        }
+    }
+    
+    @objc func openShareMenu(sender:UIButton){
+        let index = sender.tag
+        let post = posts[index]
+        if post.idx > 0 {
+            gPost = post
+            showShareButtons()
+        }
     }
     
     @objc func toggleSave(sender:UIButton){
@@ -1316,7 +1382,7 @@ class HomeViewController: BaseViewController, CLLocationManagerDelegate, UNUserN
         let params = [
             "member_id": String(thisUser.idx),
         ] as [String : Any]
-        Alamofire.request(SERVER_URL + "getmyroutes", method: .post, parameters: params).responseJSON { response in
+        Alamofire.request(SERVER_URL + "getuserroutes", method: .post, parameters: params).responseJSON { response in
             if response.result.isFailure{
 //                self.showAlertDialog(title: "Notice", message: "SERVER ERROR 500")
             } else {
@@ -1363,7 +1429,65 @@ class HomeViewController: BaseViewController, CLLocationManagerDelegate, UNUserN
         })
     }
     
+    func getNotifications(){
+                
+        var ref:DatabaseReference!
+        ref = Database.database().reference(fromURL: FIREBASE_URL + "notify").child(String(thisUser.idx))
+        ref.observe(.childAdded, with: {(snapshot) -> Void in
+            let value = snapshot.value as! [String: Any]
+            
+            let message = value["msg"] as! String
+            let sender_id = value["sender_id"] as! String
+            let sender_name = value["sender_name"] as! String
+            let sender_email = value["sender_email"] as! String
+            let sender_photo = value["sender_photo"] as! String
+            let type = value["type"] as! String
+            let id = value["id"] as! String
+            var timeStamp = String(describing: value["date"])
+            timeStamp = timeStamp.replacingOccurrences(of: "Optional(", with: "").replacingOccurrences(of: ")", with: "")
+            let time = self.getDateTimeFromTimeStamp(timeStamp: Double(timeStamp)!/1000)
+            let key = snapshot.key
 
+            let user = User()
+            user.idx = Int64(sender_id)!
+            user.name = sender_name
+            user.email = sender_email
+            user.photo_url = sender_photo
+            user.key = key
+            
+            if !self.notifiedUsers.contains(where: {$0.idx == user.idx}) {
+                self.notifiedUsers.append(user)
+            }
+            
+            print("Notified Users////////////////: \(self.notifiedUsers.count)")
+            if self.notifiedUsers.count > 0{
+                self.view_noticount.visibilityh = .visible
+                self.lbl_noticount.text = String(self.notifiedUsers.count)
+            }
+            UIApplication.shared.applicationIconBadgeNumber = self.notifiedUsers.count
+        })
+        
+        ref.observe(.childRemoved, with: {(snapshot) -> Void in
+            print("Removed////////////////: \(snapshot.key)")
+            let key = snapshot.key
+            if self.notifiedUsers.contains(where: {$0.key == key}){
+                self.notifiedUsers.remove(at: self.notifiedUsers.firstIndex(where: {$0.key == key})!)
+                print("Notified Users////////////////: \(self.notifiedUsers.count)")
+            }
+            if self.notifiedUsers.count > 0{
+                self.view_noticount.visibilityh = .visible
+                self.lbl_noticount.text = String(self.notifiedUsers.count)
+            }else{
+                self.view_noticount.visibilityh = .gone
+            }
+            UIApplication.shared.applicationIconBadgeNumber = self.notifiedUsers.count
+        })
+    }
+    
+    @IBAction func openRouteList(_ sender: Any) {
+        to(strb: "Routes", vc: "RouteListViewController", trans: false, modal: false, anim: true)
+    }
+    
 }
 
 

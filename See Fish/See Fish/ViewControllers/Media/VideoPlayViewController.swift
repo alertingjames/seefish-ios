@@ -25,6 +25,7 @@ class VideoPlayViewController: BaseViewController {
     @IBOutlet weak var likeButton: UIButton!
     @IBOutlet weak var commentButton: UIButton!
     @IBOutlet weak var saveButton: UIButton!
+    @IBOutlet weak var shareButton: UIButton!
     
     var player:AVPlayer!
     
@@ -48,6 +49,8 @@ class VideoPlayViewController: BaseViewController {
     @IBOutlet weak var lineBox: UILabel!
     @IBOutlet weak var lineAmazonButton: UIButton!
     @IBOutlet weak var lineSearchButton: UIButton!
+    
+    var shareAlert:shareAlert!
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -76,6 +79,10 @@ class VideoPlayViewController: BaseViewController {
         
         gVideoPlayViewController = self
         recent = self
+        
+        shareAlert = (UIStoryboard(name: "Frames", bundle: nil).instantiateViewController(withIdentifier: "shareAlert") as! shareAlert)
+        shareAlert.view.frame = CGRect(x: 0, y: 0, width: self.screenWidth, height: self.screenHeight)
+        shareAlert.buttonsView.alpha = 0
 
         img_poster.layer.cornerRadius = img_poster.frame.height / 2
         rodSearchButton.setImageTintColor(primaryColor)
@@ -120,6 +127,7 @@ class VideoPlayViewController: BaseViewController {
         btn_menu.setImageTintColor(.white)
         likeButton.setImageTintColor(.white)
         saveButton.setImageTintColor(.white)
+        shareButton.setImageTintColor(.white)
         commentButton.setImageTintColor(.white)
         lbl_likes.textColor = .white
         lbl_comments.textColor = .white
@@ -418,7 +426,19 @@ class VideoPlayViewController: BaseViewController {
         }
     }
     
+    func showShareButtons(){
+        UIView.animate(withDuration: 0.3) {
+            self.addChild(self.shareAlert)
+            self.view.addSubview(self.shareAlert.view)
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.shareAlert.showButtonFrame()
+        }
+    }
     
+    @IBAction func openShareAlert(_ sender: Any) {
+        showShareButtons()
+    }
     
 }
 

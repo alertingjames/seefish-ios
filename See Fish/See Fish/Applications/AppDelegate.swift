@@ -12,6 +12,8 @@ import UserNotifications
 import GoogleMaps
 import GooglePlaces
 import OneSignal
+import FirebaseCore
+import FBSDKCoreKit
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
@@ -25,6 +27,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         
         GMSServices.provideAPIKey(apikey)
         GMSPlacesClient.provideAPIKey(apikey)
+        
+        FirebaseApp.configure()
         
         UNUserNotificationCenter.current().delegate = self
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound], completionHandler: {
@@ -57,12 +61,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         
         let notificationReceivedBlock: OSHandleNotificationReceivedBlock = { [self] notification in
             print("Received Notification - \(notification?.payload.notificationID) - \(notification?.payload.title)")
-            if let actionID = notification?.payload.additionalData["act"] as? Int {
-                if actionID == 1 {
-                    if gHomeViewController != nil {
-                        gHomeViewController.routeFollowingsBar.visibility = .visible
+            do {
+                if let actionID = try? notification?.payload.additionalData["act"] as? Int {
+                    if actionID == 1 {
+                        if gHomeViewController != nil {
+                            gHomeViewController.routeFollowingsBar.visibility = .visible
+                        }
                     }
                 }
+            } catch {
+                print("error")
             }
         }
 
@@ -117,6 +125,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             print("User accepted notifications: \(accepted)")
         })
         
+        ApplicationDelegate.shared.application(
+            application,
+            didFinishLaunchingWithOptions: launchOptions
+        )
         
         return true
     }
@@ -228,7 +240,48 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
     
     
+    func application(
+        _ application: UIApplication,
+        open url: URL,
+        sourceApplication: String?,
+        annotation: Any
+    ) -> Bool {
+        return ApplicationDelegate.shared.application(
+            application, open: url,
+            sourceApplication: sourceApplication,
+            annotation: annotation
+        )
+    }
+
+    func application(
+        _ app: UIApplication,
+        open url: URL,
+        options: [UIApplication.OpenURLOptionsKey: Any] = [:]
+    ) -> Bool {
+        return ApplicationDelegate.shared.application(
+            app,
+            open: url,
+            options: options
+        )
+    }
+    
 
 }
 
+
+extension UIApplication {
+    class func getTopViewController(base: UIViewController? = UIApplication.shared.keyWindow?.rootViewController) -> UIViewController? {
+
+        if let nav = base as? UINavigationController {
+            return getTopViewController(base: nav.visibleViewController)
+
+        } else if let tab = base as? UITabBarController, let selected = tab.selectedViewController {
+            return getTopViewController(base: selected)
+
+        } else if let presented = base?.presentedViewController {
+            return getTopViewController(base: presented)
+        }
+        return base
+    }
+}
 

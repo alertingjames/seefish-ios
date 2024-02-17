@@ -20,8 +20,10 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Please allow this map to show you your current location. In order to register your location, you will need to be able to see your current location correcly on map.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Please allow access to take photo or for measurement using AR. You can take photo to complete your profile info you want to register or measure fish's size by using AR.</string>
+	<string>Please allow access to take photo or for measurement using AR. You can take photo to complete your profile info you want to register or measure fish&apos;s size by using AR.</string>
 	<key>NSLocationUsageDescription</key>
 	<string>Please allow this map to show you your current location. In order to register your location, you will need to be able to see your current location correcly on map.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
@@ -29,7 +31,7 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Please allow access to microphone to record a video for post or play the posted video.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Please allow access to pick photo in your photo library in order to complete your profile info you want to register.</string>
+	<string>We need to write photos.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Please allow access to pick photo in your photo library in order to complete your profile info you want to register.</string>
 	<key>UIAppFonts</key>
@@ -75,6 +77,41 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+        <dict>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>fb686972583337704</string>
+            </array>
+        </dict>
+	</array>
+	<key>FacebookAppID</key>
+	<string>686972583337704</string>
+	<key>FacebookClientToken</key>
+	<string>bda26be9e4c0cf54a9a09f5ba4092077</string>
+	<key>FacebookDisplayName</key>
+	<string>SeeFish</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>fbapi</string>
+		<string>fbapi20130214</string>
+		<string>fbapi20130410</string>
+		<string>fbapi20130702</string>
+		<string>fbapi20131010</string>
+		<string>fbapi20131219</string>
+		<string>fbapi20140410</string>
+		<string>fbapi20140116</string>
+		<string>fbapi20150313</string>
+		<string>fbapi20150629</string>
+		<string>fbapi20160328</string>
+		<string>fbauth</string>
+		<string>fb-messenger-share-api</string>
+		<string>fbauth2</string>
+		<string>fbshareextension</string>
+		<string>instagram-stories</string>
+		<string>instagram</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>

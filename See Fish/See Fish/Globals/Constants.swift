@@ -6,3 +6,5 @@
 //
 
 import Foundation
+
+let ratioKMToMILE = 0.621371

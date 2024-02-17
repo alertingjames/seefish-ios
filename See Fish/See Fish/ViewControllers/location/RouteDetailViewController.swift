@@ -117,7 +117,8 @@ class RouteDetailViewController: BaseViewController, CLLocationManagerDelegate, 
         marker2.appearAnimation = .pop
         map.selectedMarker = marker2
         
-        distanceBox.text = String(format: "%.2f", gRoute.distance) + "km"
+//        distanceBox.text = String(format: "%.2f", gRoute.distance) + "km"
+        distanceBox.text = String(format: "%.2f", gRoute.distance * ratioKMToMILE) + "mi"
         durationBox.text = getDurationFromMilliseconds(ms: gRoute.duration)
         
         var bounds = GMSCoordinateBounds()
@@ -197,7 +198,8 @@ class RouteDetailViewController: BaseViewController, CLLocationManagerDelegate, 
             print(result_code)
             if result_code == "0" {
                 gRoute = route!
-                self.distanceBox.text = String(format: "%.2f", gRoute.distance) + "km"
+//                self.distanceBox.text = String(format: "%.2f", gRoute.distance) + "km"
+                self.distanceBox.text = String(format: "%.2f", gRoute.distance * ratioKMToMILE) + "mi"
                 self.durationBox.text = self.getDurationFromMilliseconds(ms: gRoute.duration)
                 let path = GMSMutablePath()
                 for point in points! {

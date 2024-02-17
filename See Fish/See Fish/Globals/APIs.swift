@@ -600,9 +600,13 @@ class APIs {
     static func postVideo(post_id: Int64, member_id:Int64, title:String, category:String, content:String, rod:String, reel:String, lure:String, line:String, lat:String, lng:String, video_url: URL, thumbnail: Data, handleCallback: @escaping (String) -> ())
     {
         let url = SERVER_URL + "createvideopost"
+        let headers : Alamofire.HTTPHeaders = [
+            "cache-control" : "no-cache",
+            "Accept-Language" : "en",
+            "Connection" : "close"
+        ]
         Alamofire.upload(
             multipartFormData: { multipartFormData in
-                
                 multipartFormData.append("\(post_id)".data(using: String.Encoding.utf8, allowLossyConversion: false)!, withName: "post_id")
                 multipartFormData.append("\(member_id)".data(using: String.Encoding.utf8, allowLossyConversion: false)!, withName: "member_id")
                 multipartFormData.append(content.data(using: String.Encoding.utf8, allowLossyConversion: false)!, withName: "content")
@@ -616,35 +620,36 @@ class APIs {
                 multipartFormData.append(lng.data(using: String.Encoding.utf8, allowLossyConversion: false)!, withName: "lng")
                 multipartFormData.append(video_url, withName: "video")
                 multipartFormData.append(thumbnail, withName: "thumbnail", fileName: String(Int64(Date().timeIntervalSince1970)) + ".jpg", mimeType: "image/jpeg")
-        },
+            },
+            usingThreshold: .max,
             to: url,
-            /*method: .post,
-             headers: nil,*/
-            encodingCompletion: { encodingResult in
-                NSLog("\(encodingResult)")
+            method: .post,
+            headers: headers,
+            encodingCompletion: { (encodingResult) in
+                NSLog("*********** \(encodingResult)")
                 switch encodingResult {
-                case .success(let upload, _, _):
+                    case .success(let upload, _, _):
                     upload.uploadProgress(closure: { (progress) in
-                        print("uploding")
+                        print("uploading: \(progress.fractionCompleted)")
+                        if recent == gVideoSubmitViewController {
+                            gVideoSubmitViewController.updateProgress(val: Float(progress.fractionCompleted))
+                        }
                     })
                     upload.responseJSON { response in
-                        if response.result.isFailure{
-                            handleCallback("Server issue")
+                        if response.result.isFailure {
+                            handleCallback(response.result.debugDescription)
                         }
                         else{
                             let json = JSON(response.result.value!)
-                            NSLog("\(json)")
-                            if(json["result_code"].stringValue == "0"){
-                                handleCallback("0")
-                            }else{
-                                handleCallback("Server issue")
-                            }
+                            NSLog("******!!!****** \(json)")
+                            handleCallback(json["result_code"].stringValue)
                         }
                     }
-                case .failure(let encodingError):
-                    handleCallback("Server issue")
+                    case .failure(let encodingError):
+                    handleCallback(encodingError.localizedDescription)
                 }
-        })
+            }
+        )
         
     }
     
@@ -1832,6 +1837,133 @@ class APIs {
                     handleCallback(nil, nil, "Server issue")
                 }
                 
+            }
+        }
+    }
+    
+    
+    // Tweet Video
+    
+    static func tweetVideo(
+        text: String,
+        video_url: URL,
+//        thumbnail: Data,
+        handleCallback: @escaping (String, String) -> ()
+    ) {
+        let url = SERVER_URL + "tweetvideo"
+        let headers : Alamofire.HTTPHeaders = [
+            "cache-control" : "no-cache",
+            "Accept-Language" : "en",
+            "Connection" : "close"
+        ]
+        Alamofire.upload(
+            multipartFormData: { multipartFormData in
+                multipartFormData.append(text.data(using: String.Encoding.utf8, allowLossyConversion: false)!, withName: "text")
+                multipartFormData.append(video_url, withName: "video")
+//                multipartFormData.append(thumbnail, withName: "thumbnail", fileName: String(Int64(Date().timeIntervalSince1970)) + ".jpg", mimeType: "image/jpeg")
+            },
+            usingThreshold: .max,
+            to: url,
+            method: .post,
+            headers: headers,
+            encodingCompletion: { (encodingResult) in
+                NSLog("*********** \(encodingResult)")
+                switch encodingResult {
+                    case .success(let upload, _, _):
+                    upload.uploadProgress(closure: { (progress) in
+                        print("uploading: \(progress.fractionCompleted)")
+                        if recent == gVideoSubmitViewController {
+                            gVideoSubmitViewController.updateProgress(val: Float(progress.fractionCompleted))
+                        }
+                    })
+                    upload.responseJSON { response in
+                        if response.result.isFailure {
+                            handleCallback(response.result.debugDescription, "")
+                        }
+                        else{
+                            let json = JSON(response.result.value!)
+                            NSLog("******!!!****** \(json)")
+                            handleCallback(json["result_code"].stringValue, json["id"].stringValue)
+                        }
+                    }
+                    case .failure(let encodingError):
+                    handleCallback(encodingError.localizedDescription, "")
+                }
+            }
+        )
+        
+    }
+    
+    
+    // Tweet Image
+    
+    static func tweetImage(
+        text: String,
+        image: Data,
+        handleCallback: @escaping (String, String) -> ()
+    ) {
+        let url = SERVER_URL + "twimage"
+        let headers : Alamofire.HTTPHeaders = [
+            "cache-control" : "no-cache",
+            "Accept-Language" : "en",
+            "Connection" : "close"
+        ]
+        Alamofire.upload(
+            multipartFormData: { multipartFormData in
+                multipartFormData.append(text.data(using: String.Encoding.utf8, allowLossyConversion: false)!, withName: "text")
+                multipartFormData.append(image, withName: "image", fileName: String(Int64(Date().timeIntervalSince1970)) + ".jpg", mimeType: "image/jpeg")
+            },
+            usingThreshold: .max,
+            to: url,
+            method: .post,
+            headers: headers,
+            encodingCompletion: { (encodingResult) in
+                NSLog("*********** \(encodingResult)")
+                switch encodingResult {
+                    case .success(let upload, _, _):
+                    upload.uploadProgress(closure: { (progress) in
+                        print("uploading: \(progress.fractionCompleted)")
+                    })
+                    upload.responseJSON { response in
+                        if response.result.isFailure {
+                            handleCallback(response.result.debugDescription, "")
+                        }
+                        else{
+                            let json = JSON(response.result.value!)
+                            NSLog("******!!!****** \(json)")
+                            handleCallback(json["result_code"].stringValue, json["id"].stringValue)
+                        }
+                    }
+                    case .failure(let encodingError):
+                    handleCallback(encodingError.localizedDescription, "")
+                }
+            }
+        )
+        
+    }
+    
+    static func deleteAccount(member_id:Int64, handleCallback: @escaping (String) -> ())
+    {
+        //NSLog(url)
+        let params = [
+            "member_id": String(member_id),
+        ] as [String : Any]
+        
+        Alamofire.request(SERVER_URL + "delacc", method: .post, parameters: params).responseJSON { response in
+            
+            if response.result.isFailure{
+                handleCallback("Server issue")
+            }
+            else
+            {
+                let json = JSON(response.result.value!)
+                NSLog("account deletion response: \(json)")
+                let result_code = json["result_code"].stringValue
+                if result_code != nil{
+                    handleCallback(result_code)
+                }else {
+                    handleCallback("Server issue")
+                }
             }
         }
     }

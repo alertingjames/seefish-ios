@@ -49,11 +49,17 @@ class ImagePageViewController: BaseViewController {
     @IBOutlet weak var lineBox: UILabel!
     @IBOutlet weak var lineAmazonButton: UIButton!
     
+    var shareAlert:shareAlert!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         gImagePageViewController = self
         recent = self
+        
+        shareAlert = (UIStoryboard(name: "Frames", bundle: nil).instantiateViewController(withIdentifier: "shareAlert") as! shareAlert)
+        shareAlert.view.frame = CGRect(x: 0, y: 0, width: self.screenWidth, height: self.screenHeight)
+        shareAlert.buttonsView.alpha = 0
 
         // Do any additional setup after loading the view.
         image_scrollview.auk.settings.contentMode = .scaleAspectFit
@@ -408,6 +414,20 @@ class ImagePageViewController: BaseViewController {
         if let url = URL.init(string: strURL) {
             UIApplication.shared.open(url)
         }
+    }
+    
+    func showShareButtons(){
+        UIView.animate(withDuration: 0.3) {
+            self.addChild(self.shareAlert)
+            self.view.addSubview(self.shareAlert.view)
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.shareAlert.showButtonFrame()
+        }
+    }
+    
+    @IBAction func openShareAlert(_ sender: Any) {
+        showShareButtons()
     }
     
 }

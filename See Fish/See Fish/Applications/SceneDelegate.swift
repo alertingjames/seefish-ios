@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FBSDKCoreKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -48,6 +49,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         // Save changes in the application's managed object context when the application transitions to the background.
         (UIApplication.shared.delegate as? AppDelegate)?.saveContext()
+    }
+    
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        guard let context = URLContexts.first else {
+            fatalError("Open url called without a context. This should never happen.")
+        }
+
+        ApplicationDelegate.shared.application(
+            UIApplication.shared,
+            open: context.url,
+            sourceApplication: nil,
+            annotation: nil
+        )
     }
 
 

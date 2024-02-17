@@ -18,6 +18,8 @@ class Route {
     var distance:Double = 0
     var created_on:String = ""
     var status:String = ""
+    
+    var user = User()
 }
 
 var gRoute = Route()

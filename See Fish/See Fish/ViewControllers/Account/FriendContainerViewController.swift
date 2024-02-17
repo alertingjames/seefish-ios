@@ -122,7 +122,7 @@ class FriendContainerViewController: BaseViewController {
         let params = [
             "member_id": String(thisUser.idx),
         ] as [String : Any]
-        Alamofire.request(SERVER_URL + "getmyroutes", method: .post, parameters: params).responseJSON { response in
+        Alamofire.request(SERVER_URL + "getuserroutes", method: .post, parameters: params).responseJSON { response in
             if gRouteList.isEmpty { self.dismissLoadingView() }
             if response.result.isFailure{
 //                self.showAlertDialog(title: "Notice", message: "SERVER ERROR 500")

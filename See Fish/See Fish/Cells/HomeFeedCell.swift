@@ -44,6 +44,7 @@ class HomeFeedCell: UITableViewCell {
     @IBOutlet weak var lineBox: UILabel!
     @IBOutlet weak var lineAmazonButton: UIButton!
     
+    @IBOutlet weak var shareButton: UIButton!
     @IBOutlet weak var postImageHeight: NSLayoutConstraint!
     @IBOutlet weak var postDescHeight: UITextView!
 

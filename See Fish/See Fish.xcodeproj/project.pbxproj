@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A275F512A463E3700BA483D /* Frames.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1A275F502A463E3700BA483D /* Frames.storyboard */; };
+		1A275F532A463E6F00BA483D /* ProgressVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A275F522A463E6E00BA483D /* ProgressVC.swift */; };
+		1A45365E2A6A7B7B00C739EF /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A45365D2A6A7B7B00C739EF /* Message.swift */; };
+		1A4536602A6A978500C739EF /* NotisFrame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A45365F2A6A978500C739EF /* NotisFrame.swift */; };
+		1A4536642A6A98D100C739EF /* NotiCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A4536632A6A98D100C739EF /* NotiCell.swift */; };
+		1A4536662A6A9D0D00C739EF /* NotificationsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A4536652A6A9D0D00C739EF /* NotificationsViewController.swift */; };
 		1A71713F2944E5A100A04B9B /* UserRouteHistoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A71713E2944E5A100A04B9B /* UserRouteHistoryViewController.swift */; };
 		1A717141294697FF00A04B9B /* RouteFollowingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A717140294697FF00A04B9B /* RouteFollowingsViewController.swift */; };
 		1A7171432946EA8B00A04B9B /* ConnectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A7171422946EA8B00A04B9B /* ConnectionManager.swift */; };
@@ -23,6 +29,12 @@
 		1A78F92429404462007F9D14 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A78F92329404462007F9D14 /* NotificationService.swift */; };
 		1A78F92829404462007F9D14 /* OnesignalNotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 1A78F92129404462007F9D14 /* OnesignalNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		1AAEC0582947400200FE056A /* notification_official.wav in Resources */ = {isa = PBXBuildFile; fileRef = 1AAEC0572947400200FE056A /* notification_official.wav */; };
+		1AB3598C2AA7731A003B261D /* Routes.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1AB3598B2AA7731A003B261D /* Routes.storyboard */; };
+		1AB3598F2AA7788C003B261D /* RouteListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB3598E2AA7788C003B261D /* RouteListViewController.swift */; };
+		1AB359912AA778A4003B261D /* RouteListHeaderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB359902AA778A4003B261D /* RouteListHeaderViewController.swift */; };
+		1AB359932AA778C5003B261D /* MyRoutesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB359922AA778C5003B261D /* MyRoutesViewController.swift */; };
+		1AB359952AA778DD003B261D /* OtherRoutesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB359942AA778DD003B261D /* OtherRoutesViewController.swift */; };
+		1AB359972AA77989003B261D /* UserRouteCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AB359962AA77989003B261D /* UserRouteCell.swift */; };
 		1AD053DF2941D155009BA9C2 /* LocationRouteHistoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD053DE2941D155009BA9C2 /* LocationRouteHistoryViewController.swift */; };
 		1AD053E12941D2A0009BA9C2 /* RouteCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD053E02941D2A0009BA9C2 /* RouteCell.swift */; };
 		1AD053E32941D4BD009BA9C2 /* Route.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD053E22941D4BD009BA9C2 /* Route.swift */; };
@@ -32,6 +44,9 @@
 		1AD053EC2941FF36009BA9C2 /* RouteSaveBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD053EB2941FF36009BA9C2 /* RouteSaveBox.swift */; };
 		1AD053EE2941FFA9009BA9C2 /* QuestionDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD053ED2941FFA9009BA9C2 /* QuestionDialog.swift */; };
 		1AD053F02941FFE6009BA9C2 /* LocationLoadingDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD053EF2941FFE6009BA9C2 /* LocationLoadingDialog.swift */; };
+		1AD20E962A6BAE6B00290DF4 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1AD20E952A6BAE6B00290DF4 /* GoogleService-Info.plist */; };
+		1AFEBEEF2A988C020077F7B1 /* shareAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AFEBEEE2A988C020077F7B1 /* shareAlert.swift */; };
+		1AFEBEF12A991FF30077F7B1 /* DownloadTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AFEBEF02A991FF30077F7B1 /* DownloadTask.swift */; };
 		650304282551A43C0009A13F /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650304272551A43C0009A13F /* SearchViewController.swift */; };
 		6503042D2551A4500009A13F /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6503042C2551A4500009A13F /* MainViewController.swift */; };
 		650304322551A46A0009A13F /* AccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 650304312551A46A0009A13F /* AccountViewController.swift */; };
@@ -165,6 +180,13 @@
 		0D13B7BC4B10226DED36DCD0 /* Pods-OnesignalNotificationServiceExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OnesignalNotificationServiceExtension.release.xcconfig"; path = "Target Support Files/Pods-OnesignalNotificationServiceExtension/Pods-OnesignalNotificationServiceExtension.release.xcconfig"; sourceTree = "<group>"; };
 		11E796D62174F412C7943E1A /* Pods_See_FishTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_See_FishTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1861B752070DEAE27A8BB675 /* Pods-See Fish-See FishUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-See Fish-See FishUITests.release.xcconfig"; path = "Target Support Files/Pods-See Fish-See FishUITests/Pods-See Fish-See FishUITests.release.xcconfig"; sourceTree = "<group>"; };
+		1A1ABF082A30D6C600ED95BA /* See FishDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "See FishDebug.entitlements"; sourceTree = "<group>"; };
+		1A275F502A463E3700BA483D /* Frames.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Frames.storyboard; sourceTree = "<group>"; };
+		1A275F522A463E6E00BA483D /* ProgressVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressVC.swift; sourceTree = "<group>"; };
+		1A45365D2A6A7B7B00C739EF /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
+		1A45365F2A6A978500C739EF /* NotisFrame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotisFrame.swift; sourceTree = "<group>"; };
+		1A4536632A6A98D100C739EF /* NotiCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotiCell.swift; sourceTree = "<group>"; };
+		1A4536652A6A9D0D00C739EF /* NotificationsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsViewController.swift; sourceTree = "<group>"; };
 		1A71713E2944E5A100A04B9B /* UserRouteHistoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRouteHistoryViewController.swift; sourceTree = "<group>"; };
 		1A717140294697FF00A04B9B /* RouteFollowingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteFollowingsViewController.swift; sourceTree = "<group>"; };
 		1A7171422946EA8B00A04B9B /* ConnectionManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectionManager.swift; sourceTree = "<group>"; };
@@ -182,6 +204,12 @@
 		1A78F92329404462007F9D14 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		1A78F92529404462007F9D14 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1AAEC0572947400200FE056A /* notification_official.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = notification_official.wav; sourceTree = "<group>"; };
+		1AB3598B2AA7731A003B261D /* Routes.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Routes.storyboard; sourceTree = "<group>"; };
+		1AB3598E2AA7788C003B261D /* RouteListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteListViewController.swift; sourceTree = "<group>"; };
+		1AB359902AA778A4003B261D /* RouteListHeaderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteListHeaderViewController.swift; sourceTree = "<group>"; };
+		1AB359922AA778C5003B261D /* MyRoutesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyRoutesViewController.swift; sourceTree = "<group>"; };
+		1AB359942AA778DD003B261D /* OtherRoutesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OtherRoutesViewController.swift; sourceTree = "<group>"; };
+		1AB359962AA77989003B261D /* UserRouteCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserRouteCell.swift; sourceTree = "<group>"; };
 		1AD053DD29404EA5009BA9C2 /* See Fish.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "See Fish.entitlements"; sourceTree = "<group>"; };
 		1AD053DE2941D155009BA9C2 /* LocationRouteHistoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationRouteHistoryViewController.swift; sourceTree = "<group>"; };
 		1AD053E02941D2A0009BA9C2 /* RouteCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteCell.swift; sourceTree = "<group>"; };
@@ -192,6 +220,9 @@
 		1AD053EB2941FF36009BA9C2 /* RouteSaveBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteSaveBox.swift; sourceTree = "<group>"; };
 		1AD053ED2941FFA9009BA9C2 /* QuestionDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestionDialog.swift; sourceTree = "<group>"; };
 		1AD053EF2941FFE6009BA9C2 /* LocationLoadingDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationLoadingDialog.swift; sourceTree = "<group>"; };
+		1AD20E952A6BAE6B00290DF4 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		1AFEBEEE2A988C020077F7B1 /* shareAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = shareAlert.swift; sourceTree = "<group>"; };
+		1AFEBEF02A991FF30077F7B1 /* DownloadTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadTask.swift; sourceTree = "<group>"; };
 		2BF51FBE5CA80F17B1ED1654 /* Pods-See Fish.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-See Fish.debug.xcconfig"; path = "Target Support Files/Pods-See Fish/Pods-See Fish.debug.xcconfig"; sourceTree = "<group>"; };
 		321EA827619C24D7CFCB1D38 /* Pods-See Fish.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-See Fish.release.xcconfig"; path = "Target Support Files/Pods-See Fish/Pods-See Fish.release.xcconfig"; sourceTree = "<group>"; };
 		40EA6DFE2D86B779F95C5D00 /* Pods-See FishTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-See FishTests.release.xcconfig"; path = "Target Support Files/Pods-See FishTests/Pods-See FishTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -333,6 +364,8 @@
 				65315CCE254E3F86004E0090 /* Main.storyboard */,
 				1A78F90A293DCBA3007F9D14 /* Main2.storyboard */,
 				1AD053E92941FEAD009BA9C2 /* Main3.storyboard */,
+				1AB3598B2AA7731A003B261D /* Routes.storyboard */,
+				1A275F502A463E3700BA483D /* Frames.storyboard */,
 			);
 			path = storyboards;
 			sourceTree = "<group>";
@@ -360,6 +393,17 @@
 				1AAEC0572947400200FE056A /* notification_official.wav */,
 			);
 			path = sounds;
+			sourceTree = "<group>";
+		};
+		1AB3598D2AA7785C003B261D /* Routes */ = {
+			isa = PBXGroup;
+			children = (
+				1AB3598E2AA7788C003B261D /* RouteListViewController.swift */,
+				1AB359902AA778A4003B261D /* RouteListHeaderViewController.swift */,
+				1AB359922AA778C5003B261D /* MyRoutesViewController.swift */,
+				1AB359942AA778DD003B261D /* OtherRoutesViewController.swift */,
+			);
+			path = Routes;
 			sourceTree = "<group>";
 		};
 		1AD053E62941DA32009BA9C2 /* location */ = {
@@ -426,6 +470,7 @@
 				65315D30254E57C9004E0090 /* SignupViewController.swift */,
 				652D2270254FF337003961A6 /* ForgotPasswordViewController.swift */,
 				654AB76E258541BB0020F471 /* TermsViewController.swift */,
+				1A4536652A6A9D0D00C739EF /* NotificationsViewController.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -457,6 +502,8 @@
 		65315CC7254E3F86004E0090 /* See Fish */ = {
 			isa = PBXGroup;
 			children = (
+				1AD20E952A6BAE6B00290DF4 /* GoogleService-Info.plist */,
+				1A1ABF082A30D6C600ED95BA /* See FishDebug.entitlements */,
 				1AD053DD29404EA5009BA9C2 /* See Fish.entitlements */,
 				1AAEC05629473FE500FE056A /* sounds */,
 				65315F00254F9C61004E0090 /* Fonts */,
@@ -511,6 +558,7 @@
 				657351A62558749500DB43E7 /* CustomDashView.swift */,
 				1A78F910293EFC78007F9D14 /* EdgeInsetLabel.swift */,
 				1A7171422946EA8B00A04B9B /* ConnectionManager.swift */,
+				1AFEBEF02A991FF30077F7B1 /* DownloadTask.swift */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -538,6 +586,7 @@
 				1A78F90E293E5152007F9D14 /* FishCategory.swift */,
 				1AD053E22941D4BD009BA9C2 /* Route.swift */,
 				1AD053E42941D4EF009BA9C2 /* Point.swift */,
+				1A45365D2A6A7B7B00C739EF /* Message.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -548,6 +597,7 @@
 				65315D25254E54C7004E0090 /* Base */,
 				652180282568B6FA000BEDC8 /* Measure */,
 				1AD053E62941DA32009BA9C2 /* location */,
+				1AB3598D2AA7785C003B261D /* Routes */,
 				65687DA6255B5AAF0010E91D /* Account */,
 				657351AB2558A65600DB43E7 /* Profile */,
 				6539F3AF2557807E0024779D /* Post */,
@@ -576,6 +626,9 @@
 				1AD053EB2941FF36009BA9C2 /* RouteSaveBox.swift */,
 				1AD053ED2941FFA9009BA9C2 /* QuestionDialog.swift */,
 				1AD053EF2941FFE6009BA9C2 /* LocationLoadingDialog.swift */,
+				1A275F522A463E6E00BA483D /* ProgressVC.swift */,
+				1A45365F2A6A978500C739EF /* NotisFrame.swift */,
+				1AFEBEEE2A988C020077F7B1 /* shareAlert.swift */,
 			);
 			path = Frames;
 			sourceTree = "<group>";
@@ -591,6 +644,8 @@
 				653E98222588902A00F21B0A /* BlockedUserCell.swift */,
 				1A78F90C293DD279007F9D14 /* FishCategoryCell.swift */,
 				1AD053E02941D2A0009BA9C2 /* RouteCell.swift */,
+				1AB359962AA77989003B261D /* UserRouteCell.swift */,
+				1A4536632A6A98D100C739EF /* NotiCell.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -809,11 +864,14 @@
 			files = (
 				65315CD8254E3F95004E0090 /* LaunchScreen.storyboard in Resources */,
 				1A78F90B293DCBA3007F9D14 /* Main2.storyboard in Resources */,
+				1AB3598C2AA7731A003B261D /* Routes.storyboard in Resources */,
 				1AD053EA2941FEAD009BA9C2 /* Main3.storyboard in Resources */,
 				1AAEC0582947400200FE056A /* notification_official.wav in Resources */,
 				65315CD5254E3F95004E0090 /* Assets.xcassets in Resources */,
 				651E4346254FA7E7007F0178 /* Comfortaa-Bold.ttf in Resources */,
+				1A275F512A463E3700BA483D /* Frames.storyboard in Resources */,
 				1A78F918293F8729007F9D14 /* loading.gif in Resources */,
+				1AD20E962A6BAE6B00290DF4 /* GoogleService-Info.plist in Resources */,
 				65315F02254F9D0C004E0090 /* Comfortaa-Medium.ttf in Resources */,
 				65315CD0254E3F86004E0090 /* Main.storyboard in Resources */,
 			);
@@ -1014,10 +1072,14 @@
 				6539F4322557B72F0024779D /* SendMessageViewController.swift in Sources */,
 				65FCFA2025548F60000D0E43 /* ImageSubmitViewController.swift in Sources */,
 				6539F3722556A32A0024779D /* PlayerView.swift in Sources */,
+				1A4536602A6A978500C739EF /* NotisFrame.swift in Sources */,
 				6573517E2557D6A200DB43E7 /* SearchFeedCell.swift in Sources */,
+				1AB359912AA778A4003B261D /* RouteListHeaderViewController.swift in Sources */,
+				1A4536662A6A9D0D00C739EF /* NotificationsViewController.swift in Sources */,
 				1AD053EC2941FF36009BA9C2 /* RouteSaveBox.swift in Sources */,
 				65315CCD254E3F86004E0090 /* ViewController.swift in Sources */,
 				65C109F3255C07D2002B7863 /* ProfileOptionsViewController.swift in Sources */,
+				1A45365E2A6A7B7B00C739EF /* Message.swift in Sources */,
 				657BAC1B255514D80082F7C7 /* VideoSubmitViewController.swift in Sources */,
 				6558F5BF256BABFD002A1B55 /* MeasuringLineNode.swift in Sources */,
 				6539F36D25569E690024779D /* ImagePageViewController.swift in Sources */,
@@ -1028,6 +1090,7 @@
 				65315D31254E57C9004E0090 /* SignupViewController.swift in Sources */,
 				6558F5B2256BABE8002A1B55 /* ARSettings.swift in Sources */,
 				650304762551DA0B0009A13F /* AddFeedViewController.swift in Sources */,
+				1AB359952AA778DD003B261D /* OtherRoutesViewController.swift in Sources */,
 				65C109E9255BD4DE002B7863 /* PostSave.swift in Sources */,
 				65687DAB255B5AE50010E91D /* EditProfileViewController.swift in Sources */,
 				6539F3B1255780AA0024779D /* CommentViewController.swift in Sources */,
@@ -1047,6 +1110,7 @@
 				1A78F90F293E5152007F9D14 /* FishCategory.swift in Sources */,
 				652D2277255004AD003961A6 /* HomeViewController.swift in Sources */,
 				65687DBF255B5B7A0010E91D /* MyLikesViewController.swift in Sources */,
+				1AB359932AA778C5003B261D /* MyRoutesViewController.swift in Sources */,
 				65C109D4255BBB78002B7863 /* MyFriendHeaderViewController.swift in Sources */,
 				65A00CBA2582144900265223 /* FishPostInputBox.swift in Sources */,
 				657BAD03255529820082F7C7 /* VideoPlayViewController.swift in Sources */,
@@ -1063,15 +1127,18 @@
 				1A78F90D293DD279007F9D14 /* FishCategoryCell.swift in Sources */,
 				6558F5B5256BABE8002A1B55 /* ARSCNView+Extensions.swift in Sources */,
 				653E98232588902A00F21B0A /* BlockedUserCell.swift in Sources */,
+				1AFEBEEF2A988C020077F7B1 /* shareAlert.swift in Sources */,
 				6558F5C0256BABFD002A1B55 /* TextNode.swift in Sources */,
 				1A7171432946EA8B00A04B9B /* ConnectionManager.swift in Sources */,
 				1A717141294697FF00A04B9B /* RouteFollowingsViewController.swift in Sources */,
 				65315D27254E550F004E0090 /* BaseViewController.swift in Sources */,
+				1AFEBEF12A991FF30077F7B1 /* DownloadTask.swift in Sources */,
 				65315CCB254E3F86004E0090 /* SceneDelegate.swift in Sources */,
 				657351C42558A8C300DB43E7 /* ProfileHeaderViewController.swift in Sources */,
 				650304372551A4900009A13F /* FishViewController.swift in Sources */,
 				652D2271254FF338003961A6 /* ForgotPasswordViewController.swift in Sources */,
 				650304B32553299B0009A13F /* CachingPlayerItem.swift in Sources */,
+				1AB359972AA77989003B261D /* UserRouteCell.swift in Sources */,
 				650304282551A43C0009A13F /* SearchViewController.swift in Sources */,
 				1AD053E82941DB51009BA9C2 /* RouteDetailViewController.swift in Sources */,
 				654AB76A25853A770020F471 /* ReportViewController.swift in Sources */,
@@ -1092,9 +1159,11 @@
 				650304B8255331870009A13F /* Comment.swift in Sources */,
 				65687DBA255B5B610010E91D /* MyFollowersViewController.swift in Sources */,
 				65C109D9255BBFF7002B7863 /* FeedContainerViewController.swift in Sources */,
+				1AB3598F2AA7788C003B261D /* RouteListViewController.swift in Sources */,
 				65315CD3254E3F86004E0090 /* See_Fish.xcdatamodeld in Sources */,
 				657351AD2558A67A00DB43E7 /* UserProfileViewController.swift in Sources */,
 				1A78F911293EFC78007F9D14 /* EdgeInsetLabel.swift in Sources */,
+				1A4536642A6A98D100C739EF /* NotiCell.swift in Sources */,
 				652D2264254FDE8E003961A6 /* PickLocationViewController.swift in Sources */,
 				65FCFA1B255479A9000D0E43 /* VideoOptionsViewController.swift in Sources */,
 				65315D2C254E56E8004E0090 /* LoginViewController.swift in Sources */,
@@ -1104,6 +1173,7 @@
 				65687DC4255B5BA30010E91D /* MySavedFeedsViewController.swift in Sources */,
 				65315D13254E542A004E0090 /* Constants.swift in Sources */,
 				657351CC2558B54B00DB43E7 /* ProfileFollowerCell.swift in Sources */,
+				1A275F532A463E6F00BA483D /* ProgressVC.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1342,17 +1412,17 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "See Fish/See Fish.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "See Fish/See FishDebug.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = SA36QEKM63;
 				INFOPLIST_FILE = "See Fish/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.app.seefish;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -1369,15 +1439,15 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "See Fish/See Fish.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = SA36QEKM63;
 				INFOPLIST_FILE = "See Fish/Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.app.seefish;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
